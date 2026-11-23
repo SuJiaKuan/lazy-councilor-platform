@@ -46,41 +46,35 @@ const percentage = new Intl.NumberFormat('zh-TW', {
   maximumFractionDigits: 1,
 });
 
-export function totalChars(person: ScoredPerson) {
-  return person.keep + person.added;
+function combinedChars(person: ScoredPerson) {
+  return 2 * person.keep + person.added + person.removed;
 }
 
-export function retention(person: ScoredPerson) {
-  return person.keep / totalChars(person);
+export function similarity(person: ScoredPerson) {
+  return 2 * person.keep / combinedChars(person);
 }
 
-export function formattedRetention(person: ScoredPerson) {
-  const formatted = percentage.format(retention(person));
-  return person.added > 0 && formatted === percentage.format(1) ? '<100%' : formatted;
-}
-
-export function fullRetentionLabel(person: ScoredPerson) {
-  return person.removed === 0 ? '比對文字相同' : `刪除 ${person.removed.toLocaleString('zh-TW')} 字`;
-}
-
-export function formattedCounts(person: ScoredPerson) {
-  return `${person.keep.toLocaleString('zh-TW')} / ${totalChars(person).toLocaleString('zh-TW')} 字`;
+export function formattedSimilarity(person: ScoredPerson) {
+  const formatted = percentage.format(similarity(person));
+  return person.added + person.removed > 0 && formatted === percentage.format(1)
+    ? '<100%'
+    : formatted;
 }
 
 export function constituency(person: Person) {
   return `${person.city}・第 ${person.district} 選區`;
 }
 
-export function compareRetention(a: ScoredPerson, b: ScoredPerson) {
-  return b.keep * totalChars(a) - a.keep * totalChars(b);
+export function compareSimilarity(a: ScoredPerson, b: ScoredPerson) {
+  return b.keep * combinedChars(a) - a.keep * combinedChars(b);
 }
 
-export function retentionRanks(people: ScoredPerson[]) {
-  const ordered = [...people].sort(compareRetention);
+export function similarityRanks(people: ScoredPerson[]) {
+  const ordered = [...people].sort(compareSimilarity);
   const ranks = new Map<string, number>();
   let rank = 0;
   for (const [index, person] of ordered.entries()) {
-    if (index === 0 || compareRetention(ordered[index - 1], person) !== 0) rank = index + 1;
+    if (index === 0 || compareSimilarity(ordered[index - 1], person) !== 0) rank = index + 1;
     ranks.set(person.id, rank);
   }
   return ranks;

@@ -92,7 +92,7 @@ export function App() {
             <p className="kicker">議員選舉公報・2022–2026</p>
             <h1>誰是政見偷懶王</h1>
             <p className="subtitle">那些 2026 尋求連任的議員們</p>
-            <p className="intro">查詢全國 2022 年當選、2026 年再參選的議員。依兩屆公報的字元保留率排序，點開可查看逐字增刪與來源。</p>
+            <p className="intro">查詢全國 2022 年當選、2026 年再參選的議員。依兩屆公報的字元相似度排序，點開可查看逐字增刪與來源。</p>
           </div>
           {dataset.status === 'ready' && (
             <div className="hero-numbers" aria-label="樣本構成">

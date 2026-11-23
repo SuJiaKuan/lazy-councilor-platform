@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { compareRetention, constituency, formattedCounts, formattedRetention, fullRetentionLabel, isScored, retention, retentionRanks } from '../people';
+import { compareSimilarity, constituency, formattedSimilarity, isScored, similarity, similarityRanks } from '../people';
 import type { Person } from '../people';
 import { Portrait } from './Portrait';
 
@@ -29,10 +29,10 @@ export function Comparison({ people, cities, onSelect }: Props) {
   const confirmed = allScored.filter((person) => !person.note);
   const transcribed = allScored.filter((person) => person.note && person.transcribed);
   const rankable = confirmedOnly ? confirmed : [...confirmed, ...transcribed];
-  const ranks = retentionRanks(rankable);
+  const ranks = similarityRanks(rankable);
   const scored = visible.filter(isScored).filter((person) => !confirmedOnly || !person.note).sort((a, b) =>
     Number(ranks.has(b.id)) - Number(ranks.has(a.id)) ||
-    compareRetention(a, b) || a.name.localeCompare(b.name, 'zh-TW'),
+    compareSimilarity(a, b) || a.name.localeCompare(b.name, 'zh-TW'),
   );
   const pending = confirmedOnly ? [] : visible.filter((person) => !isScored(person));
   const excerpts = allScored.length - confirmed.length - transcribed.length;
@@ -72,7 +72,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
         </label>
       )}
       <div className="legend">
-        <p>2026 政見字元保留率（保留字元 ÷ 2026 政見總字元）</p>
+        <p>兩屆政見字元相似度</p>
         <span id="count" role="status">顯示 {shown}／{people.length} 人</span>
       </div>
       <p className="subtle">
@@ -102,13 +102,9 @@ export function Comparison({ people, cities, onSelect }: Props) {
               </span>
             </span>
             <span className="track" aria-hidden="true">
-              <span className="fill" style={{ width: `${retention(person) * 100}%` }} />
+              <span className="fill" style={{ width: `${similarity(person) * 100}%` }} />
             </span>
-            <span className="pct">
-              {formattedRetention(person)}
-              {person.added === 0 && <small>{fullRetentionLabel(person)}</small>}
-              <small>{formattedCounts(person)}</small>
-            </span>
+            <span className="pct">{formattedSimilarity(person)}</span>
           </button>
         ))}
         {pending.length > 0 && (
