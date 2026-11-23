@@ -77,13 +77,18 @@ export function App() {
     <>
       <main className="shell">
         <header className="hero">
-          <p className="edition">議員選舉公報比對 <span>2022／2026</span></p>
           <div className="hero-title">
-            <h1>誰是政見<span>偷懶王</span></h1>
-            <p className="intro">四年前寫過的政見，<br />這次又出現了多少？</p>
+            <div>
+              <h1>誰是政見偷懶王</h1>
+              <p className="intro">四年前寫過的政見，這次又出現了多少？</p>
+            </div>
+            <div className="edition">
+              <span className="edition-years"><span>2022</span><span className="edition-divider">／</span><span>2026</span></span>
+              <span>議員選舉公報逐字比對</span>
+            </div>
           </div>
         </header>
-        <section id="compare" className="compare" aria-label="政見相似度排名">
+        <section id="compare" className="compare" aria-label="政見文字保留率排名">
           {dataset.status === 'ready' && (
             <Comparison people={people} cities={cities} onSelect={openProfile} />
           )}

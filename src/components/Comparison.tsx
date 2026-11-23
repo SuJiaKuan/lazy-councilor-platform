@@ -110,30 +110,25 @@ export function Comparison({ people, cities, onSelect }: Props) {
               : (rankCounts.get(rank) ?? 0) > 1 ? `並列第 ${rank} 名` : `第 ${rank} 名`;
             return (
               <li key={person.id}>
-                <button className="candidate-card" data-leading={rank === 1 || undefined} type="button"
+                <button className="candidate-card" type="button"
                   onClick={(event) => onSelect(person, event.currentTarget)}>
-                  <span className="candidate-identity">
-                    <span className="gazette-label">名次／姓名</span>
+                  <span className="card-photo"><Portrait person={person} /></span>
+                  <span className="card-body">
                     <span className="rank">{rankLabel}</span>
                     <span className="candidate-name">{person.name}</span>
-                    <span className="card-photo"><Portrait person={person} /></span>
-                  </span>
-                  <span className="card-body">
-                    <span className="gazette-label">政見相似度</span>
+                    <span className="candidate-meta">
+                      <span>{constituency(person)}</span>
+                      {person.party && <span>{person.party}</span>}
+                    </span>
                     {isScored(person) ? (
                       <span className="candidate-score">
-                        <span className="sr-only">政見相似度 </span>
+                        <span className="score-label">文字保留率</span>
                         <strong>{formattedSimilarity(person)}</strong>
-                        {person.added === 0 && person.removed === 0 && <small>兩屆比對文字相同</small>}
                       </span>
                     ) : (
                       <span className="card-note">待補原文</span>
                     )}
-                    <span className="candidate-field"><span>選區</span>{constituency(person)}</span>
-                    {person.party && (
-                      <span className="candidate-field"><span>參選政黨</span>{person.party}</span>
-                    )}
-                    <span className="card-link">看兩屆差異 <span aria-hidden="true">→</span></span>
+                    <span className="card-link">看兩屆差異</span>
                   </span>
                 </button>
               </li>

@@ -17,7 +17,7 @@ function DiffColumn({ year, label, diff }: {
 }) {
   return (
     <section className="diff-column">
-      <h4>{year} {label}</h4>
+      <h4><span>{year}</span>{label}</h4>
       <p className="diff-text">
         {diff.map(([op, content], index) => (
           <Fragment key={index}>
@@ -67,8 +67,8 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
           {isScored(person) ? (
             <>
               <div className="profile-score">
-                <strong>{formattedSimilarity(person)}</strong>
-                <span>兩屆政見相似度</span>
+                <div><span>文字保留率</span> <strong>{formattedSimilarity(person)}</strong></div>
+                <span>數字越高，兩屆政見共同保留的文字比例越高。</span>
               </div>
               <section className="full-diff">
                 <h3>這次改了哪裡？</h3>
