@@ -1,3 +1,4 @@
+import { StationeryIcon } from './StationeryIcon';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { constituency, formattedSimilarity, isScored, similarityGrade } from '../people';
@@ -66,7 +67,7 @@ function PlatformDiff({ person }: { person: ScoredPerson }) {
 
   return (
     <section className="full-diff">
-      <h3 ref={heading}>這次改了哪裡？</h3>
+      <h3 ref={heading}><StationeryIcon kind="search" />這次改了哪裡？</h3>
       {person.added === 0 && person.removed === 0 ? (
         <p className="diff-key">兩屆比對文字相同</p>
       ) : (
@@ -149,7 +150,7 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
             </section>
           )}
           <details className="profile-sources">
-            <summary>資料來源</summary>
+            <summary><StationeryIcon kind="bulletin" />資料來源</summary>
             {isScored(person) && person.note && <p className="subtle quality-note">{person.note}</p>}
             <div className="profile-links">
               <a href={person.sources[0]} target="_blank" rel="noopener">{person.sourceLabels?.[0] ?? '2022 官方公報'}</a>

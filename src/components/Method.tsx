@@ -1,9 +1,10 @@
+import { StationeryIcon } from './StationeryIcon';
 import { dataUrl, similarityGrades } from '../people';
 
 export function Method() {
   return (
     <details id="method" className="method">
-      <summary>怎麼算？資料哪來？</summary>
+      <summary><StationeryIcon kind="folder" />怎麼算？資料哪來？</summary>
       <dl>
         <dt>目前收錄範圍</dt>
         <dd>

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Comparison } from './components/Comparison';
 import { Method } from './components/Method';
 import { ProfileDialog } from './components/ProfileDialog';
+import { StationeryIcon } from './components/StationeryIcon';
+import bulletinOtter from './assets/bulletin-otter.webp';
 import { loadPeople } from './people';
 import type { Person } from './people';
 
@@ -113,11 +115,13 @@ export function App() {
             <div>
               <h1><span>誰是政見</span><span>偷懶王</span></h1>
               <p className="intro">四年前寫過的政見，這次又出現了多少？</p>
+              <div className="edition">
+                <span className="edition-years"><span>2022</span><span className="edition-divider">／</span><span>2026</span></span>
+                <span className="edition-caption"><StationeryIcon kind="bulletin" />議員選舉公報逐字比對</span>
+              </div>
             </div>
-            <div className="edition">
-              <span className="edition-years"><span>2022</span><span className="edition-divider">／</span><span>2026</span></span>
-              <span>議員選舉公報逐字比對</span>
-            </div>
+            <img className="hero-mascot" src={bulletinOtter} alt="拿著放大鏡閱讀選舉公報的水獺"
+              width="480" height="480" decoding="async" />
           </div>
         </header>
         <section id="compare" className="compare" aria-label="政見相似度排名">

@@ -3,6 +3,8 @@ import { compareSimilarity, constituency, formattedSimilarity, isScored, similar
 import type { Person } from '../people';
 import { useMobile } from '../useMobile';
 import { Portrait } from './Portrait';
+import emptyFolderOtter from '../assets/empty-folder-otter.webp';
+import { StationeryIcon } from './StationeryIcon';
 
 interface Props {
   people: Person[];
@@ -115,7 +117,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
     <>
       <div className="controls">
         <label className="name-search">
-          <span>姓名</span>
+          <StationeryIcon kind="search" /><span>姓名</span>
           <input ref={search} type="search" aria-label="搜尋議員姓名" placeholder="搜尋議員姓名" autoComplete="off" value={query}
             onChange={(event) => {
               setQuery(event.target.value);
@@ -216,7 +218,10 @@ export function Comparison({ people, cities, onSelect }: Props) {
           ? `已顯示 ${pagePeople.length}／${matches.length} 位。`
           : `第 ${page} 頁，共 ${totalPages} 頁，${matches.length} 筆結果。`}
       </p>
-      {matches.length === 0 && <p className="empty-result">沒有符合的人選。可調整搜尋條件。</p>}
+      {matches.length === 0 && <div className="empty-result">
+        <img src={emptyFolderOtter} alt="" width="88" height="88" />
+        <p>沒有符合的人選。可調整搜尋條件。</p>
+      </div>}
       {pagePeople.length > 0 && (
         <ul className="ranking-grid" ref={list} key={mobile ? 'mobile' : page}>
           {pagePeople.map((person) => {
@@ -254,7 +259,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
                         </span>
                       </span>
                     ) : (
-                      <span className="card-note">待補原文</span>
+                      <span className="card-note"><StationeryIcon kind="folder" />待補原文</span>
                     )}
                     <span className="card-link">看兩屆差異</span>
                   </span>
