@@ -18,7 +18,10 @@
   --paper: #fffdfa;
   --rule: #b5aa9c;
   --numbers: Georgia, "Times New Roman", serif;
-  --round-numbers: ui-rounded, "Arial Rounded MT Bold", "Nunito", system-ui, sans-serif;
+  --round-numbers: "Council Display", ui-rounded, "Arial Rounded MT Bold", "Nunito", system-ui, sans-serif;
+  --desk-grain: url("./assets/pale-oak-desk.webp");
+  --tape: #e6ba81;
+  --clip: #71978c;
   --paper-shade: #f4ede3;
   --paper-edge: #d9cfc0;
   --paper-shadow: 0 3px 0 #e9e0d3;
@@ -72,7 +75,63 @@ button {
 }
 
 .hero {
-  padding: clamp(26px, 4.4vw, 56px) 0 clamp(20px, 3.6vw, 42px);
+  margin: clamp(14px, 3.2vw, 40px) 0 clamp(14px, 1.8vw, 24px);
+  padding: clamp(22px, 4vw, 44px) clamp(14px, 4.2vw, 48px);
+  border: 1px solid #d9bd96;
+  border-radius: 24px 24px 24px 10px;
+  background: #f2dfc1 var(--desk-grain) center / cover;
+  box-shadow: 0 4px 0 #ddc5a6;
+}
+
+.hero-paper {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  padding: clamp(10px, 2.6vw, 30px);
+  border: 1px solid #eadcc7;
+  border-radius: 8px 11px 20px 8px;
+  background: var(--paper);
+  box-shadow: 2px 4px 0 #a8794930;
+}
+
+.hero-paper::before {
+  position: absolute;
+  inset: -10px auto auto 17%;
+  width: clamp(46px, 8vw, 94px);
+  height: 19px;
+  background: repeating-linear-gradient(115deg, #ffffff38 0 2px, transparent 2px 7px), var(--tape);
+  opacity: .85;
+  transform: rotate(-5deg);
+  clip-path: polygon(0 0, 100% 0, 96% 32%, 100% 68%, 97% 100%, 1% 100%, 4% 72%, 0 50%, 4% 20%);
+  content: "";
+  pointer-events: none;
+}
+
+.hero-sticker {
+  position: relative;
+  isolation: isolate;
+}
+
+.paw-trail {
+  position: absolute;
+  right: calc(100% - 9px);
+  bottom: -2px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #875831;
+  transform: rotate(-22deg);
+  z-index: -1;
+}
+
+.paw-trail .stationery-icon {
+  color: inherit;
+  opacity: .44;
+  margin: 0;
+}
+
+.paw-trail .stationery-icon:last-child {
+  translate: 0 -6px;
 }
 
 .edition {
@@ -96,6 +155,7 @@ button {
   display: block;
   width: clamp(116px, 19vw, 224px);
   height: auto;
+  filter: drop-shadow(1px 4px 1px #80522b44);
   transform: rotate(3deg);
   transform-origin: 50% 85%;
 }
@@ -166,6 +226,7 @@ h2 {
 }
 
 .intro {
+  font-family: var(--display);
   margin: 10px 0 0;
   max-width: 24rem;
   color: var(--muted);
@@ -192,7 +253,7 @@ h2 {
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 18px 18px 18px 8px;
-  background: var(--paper-shade);
+  background: linear-gradient(#fcf8f1d9, #fcf8f1d9), var(--desk-grain) center 62% / cover, var(--paper-shade);
 }
 
 .ranking-filters {
@@ -208,6 +269,7 @@ h2 {
 }
 
 label {
+  font-family: var(--display);
   font-size: .82rem;
   font-weight: 620;
 }
@@ -311,6 +373,7 @@ select {
 }
 
 .candidate-card {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, .78fr) minmax(0, 1fr);
   align-items: stretch;
@@ -323,6 +386,21 @@ select {
   box-shadow: var(--paper-shadow);
   padding: clamp(8px, 1.2vw, 13px);
   text-align: left;
+}
+
+.candidate-card::before {
+  position: absolute;
+  z-index: 1;
+  top: -6px;
+  left: 25px;
+  width: 12px;
+  height: 27px;
+  border: 2px solid var(--clip);
+  border-bottom-color: transparent;
+  border-radius: 9px;
+  transform: rotate(-13deg);
+  pointer-events: none;
+  content: "";
 }
 
 .candidate-card:focus-visible {
@@ -628,6 +706,7 @@ select {
 }
 
 .method summary, .ranking-options summary, .profile-sources summary {
+  font-family: var(--display);
   cursor: pointer;
   padding-block: 10px;
   font-size: .88rem;
@@ -708,6 +787,7 @@ dialog::backdrop {
 }
 
 .sheet-head h2 {
+  font-family: var(--display);
   margin-bottom: 6px;
 }
 
@@ -894,9 +974,6 @@ del {
   .shell {
     width: calc(100% - 28px);
   }
-  .hero {
-    padding-bottom: 14px;
-  }
   .hero-title {
     gap: 8px;
   }
@@ -904,7 +981,11 @@ del {
     width: clamp(86px, 23vw, 144px);
   }
   .hero h1 {
-    font-size: clamp(1.85rem, 8vw, 3.65rem);
+    font-size: clamp(1.65rem, 7.4vw, 3.35rem);
+  }
+  .paw-trail {
+    right: 3px;
+    bottom: -15px;
   }
   .edition {
     gap: 6px 10px;

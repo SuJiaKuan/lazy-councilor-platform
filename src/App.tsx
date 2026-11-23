@@ -112,7 +112,7 @@ export function App() {
       <main className="shell">
         <header className="hero">
           <div className="hero-title">
-            <div>
+            <div className="hero-paper">
               <h1><span>誰是政見</span><span>偷懶王</span></h1>
               <p className="intro">四年前寫過的政見，這次又出現了多少？</p>
               <div className="edition">
@@ -120,8 +120,13 @@ export function App() {
                 <span className="edition-caption"><StationeryIcon kind="bulletin" />議員選舉公報逐字比對</span>
               </div>
             </div>
-            <img className="hero-mascot" src={bulletinOtter} alt="拿著放大鏡閱讀選舉公報的水獺"
-              width="480" height="480" decoding="async" />
+            <div className="hero-sticker">
+              <img className="hero-mascot" src={bulletinOtter} alt="拿著放大鏡閱讀選舉公報的水獺"
+                width="480" height="480" decoding="async" />
+              <span className="paw-trail" aria-hidden="true">
+                <StationeryIcon kind="paw" /><StationeryIcon kind="paw" />
+              </span>
+            </div>
           </div>
         </header>
         <section id="compare" className="compare" aria-label="政見相似度排名">
