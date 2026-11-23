@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { compareSimilarity, constituency, formattedSimilarity, isScored, similarityRanks } from '../people';
+import { compareSimilarity, constituency, formattedSimilarity, isScored, similarityGrade, similarityRanks } from '../people';
 import type { Person } from '../people';
 import { Portrait } from './Portrait';
 
@@ -129,6 +129,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
         <ul className="ranking-grid" key={page}>
           {pagePeople.map((person) => {
             const rank = ranks.get(person.id);
+            const grade = isScored(person) ? similarityGrade(person) : undefined;
             const logo = person.party && partyLogos.get(person.party);
             const rankLabel = rank === undefined ? '未列名次'
               : (rankCounts.get(rank) ?? 0) > 1 ? `並列第 ${rank} 名` : `第 ${rank} 名`;
@@ -155,7 +156,10 @@ export function Comparison({ people, cities, onSelect }: Props) {
                     {isScored(person) ? (
                       <span className="candidate-score">
                         <span className="score-label">文字保留率</span>
-                        <strong>{formattedSimilarity(person)}</strong>
+                        <span className="graded-score" data-grade={grade?.id}>
+                          <strong>{formattedSimilarity(person)}</strong>
+                          <span className="score-grade">{grade?.label}</span>
+                        </span>
                       </span>
                     ) : (
                       <span className="card-note">待補原文</span>

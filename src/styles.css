@@ -346,8 +346,64 @@ select {
   font-size: .78rem;
 }
 
+.graded-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 8px;
+}
+
+[data-grade="identical"] {
+  --grade-ink: #8f292d;
+  --grade-paper: #f5e6e6;
+}
+
+[data-grade="minor-edits"] {
+  --grade-ink: #94451f;
+  --grade-paper: #f7e9df;
+}
+
+[data-grade="mostly-retained"] {
+  --grade-ink: #775511;
+  --grade-paper: #f6edcf;
+}
+
+[data-grade="mixed"] {
+  --grade-ink: #624873;
+  --grade-paper: #eee7f3;
+}
+
+[data-grade="reworked"] {
+  --grade-ink: #2e5579;
+  --grade-paper: #e7edf6;
+}
+
+[data-grade="mostly-rewritten"] {
+  --grade-ink: #226454;
+  --grade-paper: #e2efe9;
+}
+
+.score-grade {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--grade-paper);
+  color: var(--grade-ink);
+  font-size: .75rem;
+  font-weight: 650;
+}
+
+.grade-guide {
+  margin: 6px 0 0;
+  padding-inline-start: 1.2em;
+}
+
+.grade-guide li + li {
+  margin-top: 4px;
+}
+
 .candidate-score strong {
-  color: var(--red);
+  color: var(--grade-ink, var(--red));
   font-size: clamp(1.95rem, 3.8vw, 3rem);
   font-weight: 790;
   line-height: 1;
@@ -563,10 +619,10 @@ dialog::backdrop {
   font-family: var(--numbers);
   font-size: 2.15rem;
   line-height: 1.07;
-  color: var(--red);
+  color: var(--grade-ink, var(--red));
 }
 
-.profile-score span {
+.profile-score span:not(.score-grade) {
   font-size: .86rem;
   color: var(--muted);
 }

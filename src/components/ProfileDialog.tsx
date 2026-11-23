@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef } from 'react';
-import { constituency, formattedSimilarity, isScored } from '../people';
+import { constituency, formattedSimilarity, isScored, similarityGrade } from '../people';
 import type { Person, ScoredPerson } from '../people';
 import { Portrait } from './Portrait';
 
@@ -32,6 +32,7 @@ function DiffColumn({ year, label, diff }: {
 export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
+  const grade = person && isScored(person) ? similarityGrade(person) : undefined;
 
   useEffect(() => {
     const element = dialog.current;
@@ -66,8 +67,12 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
           </header>
           {isScored(person) ? (
             <>
-              <div className="profile-score">
-                <div><span>文字保留率</span> <strong>{formattedSimilarity(person)}</strong></div>
+              <div className="profile-score" data-grade={grade?.id}>
+                <div>
+                  <span>文字保留率</span>
+                  <strong>{formattedSimilarity(person)}</strong>
+                  {grade && <span className="score-grade">{grade.label} · {grade.range}</span>}
+                </div>
                 <span>數字越高，兩屆政見共同保留的文字比例越高。</span>
               </div>
               <section className="full-diff">

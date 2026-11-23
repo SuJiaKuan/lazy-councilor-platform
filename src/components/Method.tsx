@@ -1,4 +1,4 @@
-import { dataUrl } from '../people';
+import { dataUrl, similarityGrades } from '../people';
 
 export function Method() {
   return (
@@ -21,6 +21,15 @@ export function Method() {
         <dt>排名怎麼排</dt>
         <dd>
           依未四捨五入的文字保留率由高到低排序，同分並列。
+        </dd>
+        <dt>文字改寫分級</dt>
+        <dd>
+          依未四捨五入的文字保留率分級。級別描述兩屆公報的文字變動程度。
+          <ul className="grade-guide">
+            {similarityGrades.map((grade) => (
+              <li key={grade.id} data-grade={grade.id}><span className="score-grade">{grade.label}</span> {grade.range}</li>
+            ))}
+          </ul>
         </dd>
         <dt>怎麼讀逐字差異</dt>
         <dd>
