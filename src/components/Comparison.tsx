@@ -11,11 +11,21 @@ interface Props {
 
 const pageSize = 12;
 const searchKey = (name: string) => name.trim().replaceAll('台', '臺');
+const partyLogos = new Map([
+  ['中國國民黨', 'kmt'],
+  ['民主進步黨', 'dpp'],
+  ['新黨', 'np'],
+  ['社會民主黨', 'sdp'],
+  ['台灣團結聯盟', 'tsu'],
+  ['勞動黨', 'labor'],
+  ['親民黨', 'pfp'],
+]);
 
 export function Comparison({ people, cities, onSelect }: Props) {
   const [query, setQuery] = useState('');
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
+  const [party, setParty] = useState('');
   const [confirmedOnly, setConfirmedOnly] = useState(false);
   const [page, setPage] = useState(1);
   const results = useRef<HTMLHeadingElement>(null);
@@ -23,8 +33,11 @@ export function Comparison({ people, cities, onSelect }: Props) {
   const districts = [...new Set(cityPeople.map((person) => String(person.district)))].sort(
     (a, b) => a.localeCompare(b, 'zh-TW', { numeric: true }),
   );
+  const parties = [...new Set(people.flatMap((person) => person.party ? [person.party] : []))]
+    .sort((a, b) => a.localeCompare(b, 'zh-TW'));
   const visible = cityPeople.filter((person) =>
     (!district || String(person.district) === district) &&
+    (!party || person.party === party) &&
     searchKey(person.name).includes(searchKey(query)),
   );
   const allScored = people.filter(isScored);
@@ -80,6 +93,16 @@ export function Comparison({ people, cities, onSelect }: Props) {
             {districts.map((value) => <option key={value} value={value}>第 {value} 選區</option>)}
           </select>
         </label>
+        <label>
+          黨籍
+          <select value={party} onChange={(event) => {
+            setParty(event.target.value);
+            setPage(1);
+          }}>
+            <option value="">全部黨籍</option>
+            {parties.map((name) => <option key={name}>{name}</option>)}
+          </select>
+        </label>
       </div>
       {confirmed.length > 0 && (
         <details className="ranking-options">
@@ -106,6 +129,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
         <ul className="ranking-grid" key={page}>
           {pagePeople.map((person) => {
             const rank = ranks.get(person.id);
+            const logo = person.party && partyLogos.get(person.party);
             const rankLabel = rank === undefined ? '未列名次'
               : (rankCounts.get(rank) ?? 0) > 1 ? `並列第 ${rank} 名` : `第 ${rank} 名`;
             return (
@@ -118,7 +142,15 @@ export function Comparison({ people, cities, onSelect }: Props) {
                     <span className="candidate-name">{person.name}</span>
                     <span className="candidate-meta">
                       <span>{constituency(person)}</span>
-                      {person.party && <span>{person.party}</span>}
+                      {person.party && (
+                        <span className="candidate-party">
+                          {logo && (
+                            <img src={`${import.meta.env.BASE_URL}party-logos/${logo}.png`}
+                              alt="" width="20" height="20" decoding="async" />
+                          )}
+                          {person.party}
+                        </span>
+                      )}
                     </span>
                     {isScored(person) ? (
                       <span className="candidate-score">

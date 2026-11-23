@@ -35,6 +35,18 @@ npm run preview  # 在 http://localhost:4173/ 預覽建置結果
 | `scripts/prepare_data.py` | 上游文字資料轉成公開 JSON |
 | `tests/dataset.test.js` | 檢查公開資料格式與明細連結 |
 
+## 黨徽來源
+
+卡片上的黨徽依 2026 候選人名冊的推薦政黨顯示。來源如下：
+
+- [中國國民黨](https://commons.wikimedia.org/wiki/File:Emblem_of_the_Kuomintang.svg)
+- [民主進步黨](https://commons.wikimedia.org/wiki/File:Green_Taiwan_with_White_Cross_(cropped).svg)
+- [新黨](https://commons.wikimedia.org/wiki/File:Np_logo.png)
+- [社會民主黨](https://commons.wikimedia.org/wiki/File:Social_Democratic_Party_Taiwan_Logo.svg)
+- [台灣團結聯盟](https://www.tsu.org.tw/%E9%BB%A8%E7%B6%B1%E8%88%87%E9%BB%A8%E7%AB%A0)
+- [勞動黨](https://ws.moi.gov.tw/001/Upload/444/relfile/13073/561/7c92b857-fd75-4c1f-9f5e-25227aa9e3e7.pdf)
+- [親民黨](https://commons.wikimedia.org/wiki/File:LogoPFP.svg)
+
 ## 更新資料
 
 下載兩屆共六份 Taiwan Votes 公報政見 CSV，再依連任名單產出候選檔。確認差異後更新 `public/data.json`。
