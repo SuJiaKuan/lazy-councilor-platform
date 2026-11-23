@@ -1,0 +1,24 @@
+{
+  "name": "lazy-councilor-platform",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "^20.16.0 || >=22.12.0" },
+  "scripts": {
+    "dev": "vite --strictPort",
+    "check": "tsc --noEmit && node --test",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --strictPort"
+  },
+  "dependencies": {
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.16",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "4.7.0",
+    "typescript": "6.0.3",
+    "vite": "6.4.3"
+  }
+}
