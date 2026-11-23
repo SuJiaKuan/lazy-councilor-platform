@@ -77,8 +77,11 @@ export function App() {
     <>
       <main className="shell">
         <header className="hero">
-          <h1 id="page-title">誰是政見偷懶王</h1>
-          <p className="intro">尋求連任的議員，2022 和 2026 年的政見有多像？</p>
+          <p className="edition">議員選舉公報比對 <span>2022 → 2026</span></p>
+          <div className="hero-title">
+            <h1>誰是政見<span>偷懶王</span></h1>
+            <p className="intro">四年前寫過的政見，<br />這次又出現了多少？</p>
+          </div>
         </header>
         <section id="compare" className="compare" aria-label="政見相似度排名">
           {dataset.status === 'ready' && (

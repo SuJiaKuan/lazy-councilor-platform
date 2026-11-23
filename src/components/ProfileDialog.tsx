@@ -71,8 +71,12 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
                 <span>兩屆政見相似度</span>
               </div>
               <section className="full-diff">
-                <h3>{person.note ? '比對稿逐字差異' : '全文逐字差異'}</h3>
-                <div className="diff-key"><del>刪除文字</del><ins>新增文字</ins><span>保留文字</span></div>
+                <h3>這次改了哪裡？</h3>
+                {person.added === 0 && person.removed === 0 ? (
+                  <p className="diff-key">兩屆比對文字相同</p>
+                ) : (
+                  <div className="diff-key"><del>刪除文字</del><ins>新增文字</ins><span>保留文字</span></div>
+                )}
                 <div className="diff-columns">
                   <DiffColumn year={2022} label={person.note ? '政見比對稿' : '政見全文'} diff={person.oldDiff} />
                   <DiffColumn year={2026} label={person.note ? '政見比對稿' : '政見全文'} diff={person.newDiff} />

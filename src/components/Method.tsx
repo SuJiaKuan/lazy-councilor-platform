@@ -3,7 +3,7 @@ import { dataUrl } from '../people';
 export function Method() {
   return (
     <details id="method" className="method">
-      <summary>方法與來源</summary>
+      <summary>怎麼算？資料哪來？</summary>
       <dl>
         <dt>目前收錄範圍</dt>
         <dd>

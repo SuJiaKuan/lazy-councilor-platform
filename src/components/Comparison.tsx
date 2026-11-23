@@ -31,6 +31,8 @@ export function Comparison({ people, cities, onSelect }: Props) {
   const confirmed = allScored.filter((person) => !person.note);
   const rankable = confirmedOnly ? confirmed : allScored.filter((person) => !person.note || person.transcribed);
   const ranks = similarityRanks(rankable);
+  const rankCounts = new Map<number, number>();
+  for (const rank of ranks.values()) rankCounts.set(rank, (rankCounts.get(rank) ?? 0) + 1);
   const scored = visible.filter(isScored).filter((person) => !confirmedOnly || !person.note).sort((a, b) =>
     Number(ranks.has(b.id)) - Number(ranks.has(a.id)) ||
     compareSimilarity(a, b) || a.name.localeCompare(b.name, 'zh-TW'),
@@ -93,32 +95,34 @@ export function Comparison({ people, cities, onSelect }: Props) {
         </details>
       )}
       <div className="ranking-heading">
-        <h2 ref={results} tabIndex={-1}>{confirmedOnly ? '已核對排名' : '全國排名'}</h2>
-        <span>政見相似度</span>
+        <h2 ref={results} tabIndex={-1}>{confirmedOnly ? '已核對排名' : '誰寫得最像上次？'}</h2>
+        <p>百分比越高，兩屆公報的寫法越接近。</p>
       </div>
       <p className="sr-only" role="status">
         {matches.length > 0 ? `第 ${page} 頁，共 ${totalPages} 頁，${matches.length} 筆結果。` : '沒有符合的人選。'}
       </p>
       {matches.length === 0 && <p className="empty-result">沒有符合的人選。可調整搜尋條件。</p>}
       {pagePeople.length > 0 && (
-        <ul className="ranking-grid">
+        <ul className="ranking-grid" key={page}>
           {pagePeople.map((person) => {
             const rank = ranks.get(person.id);
+            const rankLabel = rank === undefined ? '未列名次'
+              : (rankCounts.get(rank) ?? 0) > 1 ? `並列第 ${rank} 名` : `第 ${rank} 名`;
             return (
               <li key={person.id}>
-                <button className="candidate-card" type="button"
+                <button className="candidate-card" data-leading={rank === 1 || undefined} type="button"
                   onClick={(event) => onSelect(person, event.currentTarget)}>
                   <span className="card-photo">
                     <Portrait person={person} />
-                    <span className="rank">{rank === undefined ? '未列名次' : `第 ${rank} 名`}</span>
+                    <span className="rank">{rankLabel}</span>
                   </span>
                   <span className="card-body">
                     <span className="candidate-name">{person.name}</span>
                     <span className="candidate-meta">{constituency(person)}{person.party && `・${person.party}`}</span>
                     {isScored(person) ? (
                       <span className="candidate-score">
-                        <span className="sr-only">相似度 </span>
-                        {formattedSimilarity(person)}
+                        <span className="score-label">政見相似度</span>
+                        <strong>{formattedSimilarity(person)}</strong>
                       </span>
                     ) : (
                       <span className="card-note">待補原文</span>

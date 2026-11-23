@@ -1,13 +1,15 @@
 :root {
   font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
-  background: #f4f5ef;
-  color: #142c24;
-  --ink: #142c24;
-  --muted: #52665b;
-  --green: #23634b;
-  --line: #d8e0d5;
-  --paper: #fff;
-  --soft: #e7eee5;
+  color: #24201b;
+  background: #f6efe0;
+  --ink: #24201b;
+  --muted: #5d5145;
+  --red: #a92e28;
+  --blue: #dce8eb;
+  --soft: #e3e9d8;
+  --line: #b9ab94;
+  --paper: #fffbf1;
+  --serif: "Noto Serif TC","Songti TC","PMingLiU",serif;
 }
 
 * {
@@ -16,10 +18,14 @@
 
 body {
   margin: 0;
+  background-image: repeating-linear-gradient(
+    0deg, transparent 0 5px, rgb(80 54 30 / 2%) 5px 6px
+  );
+  min-height: 100vh;
 }
 
 a {
-  color: var(--green);
+  color: var(--red);
   text-underline-offset: .23em;
 }
 
@@ -33,35 +39,62 @@ button {
 }
 
 :focus-visible {
-  outline: 3px solid #a46222;
+  outline: 3px solid var(--red);
   outline-offset: 3px;
 }
 
 .shell {
-  width: min(1100px,calc(100% - 56px));
+  width: min(1180px,calc(100% - 56px));
   margin-inline: auto;
 }
 
 .share {
-  background: var(--ink);
+  background: var(--red);
   color: white;
-  border: 1px solid var(--ink);
-  border-radius: 5px;
+  border: 1px solid var(--red);
   padding: .5rem .85rem;
   white-space: nowrap;
 }
 
 .share:hover {
-  background: var(--green);
+  background: #84221e;
 }
 
 .hero {
-  padding: clamp(28px, 5vw, 58px) 0 20px;
+  padding: clamp(16px, 2.3vw, 28px) 0 15px;
+}
+
+.edition {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 0 7px;
+  border-top: 4px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 750;
+  letter-spacing: .08em;
+}
+
+.edition span {
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: clamp(14px, 1.8vw, 24px) 0 clamp(14px, 1.7vw, 22px);
+  border-bottom: 2px solid var(--ink);
 }
 
 .kicker {
   margin: 0 0 12px;
-  color: var(--green);
+  color: var(--muted);
   font-size: .9rem;
   font-weight: 750;
   letter-spacing: .095em;
@@ -72,12 +105,30 @@ h1, h2, p {
 }
 
 h1 {
-  margin: 0 0 12px;
-  font-family: "Noto Serif TC","Songti TC","PMingLiU",serif;
-  font-weight: 820;
-  font-size: clamp(2.3rem, 6vw, 5.3rem);
-  line-height: 1.1;
-  letter-spacing: -.07em;
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: clamp(2.05rem, 6.7vw, 6rem);
+  line-height: 1.15;
+  letter-spacing: -.055em;
+}
+
+h1 span {
+  position: relative;
+  display: inline-block;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+h1 span::after {
+  position: absolute;
+  inset: auto -.02em -.11em .02em;
+  height: .19em;
+  border-bottom: .055em solid var(--red);
+  border-radius: 50%;
+  transform: rotate(-4deg);
+  content: "";
+  pointer-events: none;
 }
 
 h2 {
@@ -87,11 +138,13 @@ h2 {
 }
 
 .intro {
-  max-width: 37rem;
   margin: 0;
-  color: var(--muted);
-  line-height: 1.75;
-  font-size: 1.08rem;
+  padding: 7px 0 7px 14px;
+  border-left: 3px solid var(--red);
+  color: var(--ink);
+  line-height: 1.5;
+  font-size: clamp(1rem, 1.8vw, 1.35rem);
+  font-weight: 720;
 }
 
 .compare {
@@ -109,7 +162,10 @@ h2 {
   display: grid;
   grid-template-columns: minmax(0,1.4fr) repeat(2, minmax(0,1fr));
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--blue);
 }
 
 label {
@@ -121,8 +177,8 @@ input, select {
   display: block;
   width: 100%;
   min-height: 46px;
-  border: 1px solid #bfcfc1;
-  border-radius: 5px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
   background: var(--paper);
   font-size: 1rem;
   font-weight: 500;
@@ -133,7 +189,7 @@ input, select {
 select {
   appearance: none;
   padding-right: 33px;
-  background-image: linear-gradient(45deg,transparent 50%,var(--green) 50%),linear-gradient(135deg,var(--green) 50%,transparent 50%);
+  background-image: linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);
   background-position: calc(100% - 16px) 53%,calc(100% - 11px) 53%;
   background-size: 5px 5px;
   background-repeat: no-repeat;
@@ -144,16 +200,21 @@ select {
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 11px;
   color: var(--muted);
   font-size: .9rem;
 }
 
 .ranking-heading h2 {
   color: var(--ink);
-  font-size: 1.1rem;
-  letter-spacing: 0;
+  font-family: var(--serif);
+  font-size: clamp(1.35rem, 2.7vw, 2rem);
+  letter-spacing: -.025em;
   scroll-margin-top: 16px;
+}
+
+.ranking-heading p {
+  margin: 0;
 }
 
 .ranking-grid {
@@ -171,16 +232,22 @@ select {
   align-items: stretch;
   width: 100%;
   height: 100%;
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  border: 1px solid var(--ink);
   background: var(--paper);
   padding: 0;
   text-align: left;
+  box-shadow: 2px 2px 0 rgb(60 48 31 / 16%);
 }
 
-.candidate-card:hover {
-  border-color: var(--green);
-  background: #fafcf8;
+.candidate-card:focus-visible {
+  border-color: var(--red);
+}
+
+@media (hover: hover) {
+  .candidate-card:hover {
+    border-color: var(--red);
+    box-shadow: 3px 4px 0 rgb(169 46 40 / 20%);
+  }
 }
 
 .card-photo {
@@ -191,8 +258,18 @@ select {
 .card-photo .portrait {
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 11px 11px 0 0;
+  border-radius: 0;
   font-size: clamp(2.5rem, 7vw, 5rem);
+}
+
+@media (min-width: 961px) {
+  .card-photo .portrait {
+    max-height: 230px;
+  }
+}
+
+.ranking-grid li:nth-child(2n) .card-photo .portrait {
+  background-color: var(--blue);
 }
 
 .card-photo .portrait img {
@@ -204,18 +281,24 @@ select {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 12px 14px 14px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--ink);
 }
 
 .rank {
   position: absolute;
   inset: 8px auto auto 8px;
-  color: white;
-  background: var(--ink);
-  border-radius: 4px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid;
   padding: 3px 7px;
   font-size: .8rem;
   font-weight: 750;
+}
+
+.candidate-card[data-leading] .rank {
+  color: var(--red);
+  box-shadow: 2px 2px 0 #a92e2833;
 }
 
 .candidate-name {
@@ -234,16 +317,31 @@ select {
   margin-top: 4px;
 }
 
-.candidate-score, .card-note {
+.card-note {
   margin-top: auto;
   padding-top: 10px;
 }
 
 .candidate-score {
-  font-size: clamp(1.55rem, 3.5vw, 2.45rem);
-  font-weight: 800;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 3px 6px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.score-label {
+  color: var(--muted);
+  font-size: .73rem;
+  font-weight: 650;
+}
+
+.candidate-score strong {
+  font-size: clamp(1.55rem, 3.2vw, 2.6rem);
   line-height: 1;
-  letter-spacing: -.045em;
+  letter-spacing: -.06em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -262,7 +360,7 @@ select {
   padding: 6px 10px;
   background-color: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 5px;
+  border-radius: 2px;
 }
 
 .pagination select {
@@ -299,6 +397,7 @@ select {
 }
 
 .portrait {
+  position: relative;
   display: grid;
   place-items: center;
   flex: none;
@@ -312,10 +411,17 @@ select {
 }
 
 .portrait img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center 30%;
+  visibility: hidden;
+}
+
+.portrait img[data-loaded] {
+  visibility: visible;
 }
 
 .sheet-head .portrait {
@@ -323,7 +429,7 @@ select {
 }
 
 .method {
-  border-top: 1px solid var(--line);
+  border-top: 2px solid var(--ink);
   margin-bottom: 32px;
   color: var(--muted);
 }
@@ -369,15 +475,14 @@ dd {
 dialog {
   width: min(870px,calc(100% - 24px));
   max-height: calc(100dvh - 26px);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: 1px solid var(--ink);
   padding: 0;
   background: var(--paper);
   color: var(--ink);
 }
 
 dialog::backdrop {
-  background: #13271dd0;
+  background: #24201bc4;
 }
 
 .sheet {
@@ -415,14 +520,14 @@ dialog::backdrop {
   align-items: baseline;
   flex-wrap: wrap;
   gap: 5px 12px;
-  background: var(--soft);
-  border-radius: 5px;
+  background: var(--blue);
+  border-block: 1px solid var(--line);
   padding: 10px 12px;
   margin: 17px 0;
 }
 
 .profile-score strong {
-  font-size: 1.46rem;
+  font-size: 1.9rem;
   line-height: 1.3;
 }
 
@@ -445,9 +550,8 @@ dialog::backdrop {
 }
 
 .text-button {
-  border: 1px solid #bfcfc1;
-  border-radius: 5px;
-  background: white;
+  border: 1px solid var(--line);
+  background: var(--paper);
   padding: .4rem .64rem;
 }
 
@@ -486,8 +590,7 @@ del {
 .diff-column {
   min-width: 0;
   border: 1px solid var(--line);
-  border-radius: 5px;
-  background: #f8faf7;
+  background: #fffdf6;
   padding: 14px;
 }
 
@@ -521,6 +624,34 @@ del {
   border-radius: 5px;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  h1 span::after {
+    animation: mark-title 360ms ease-out both;
+  }
+
+  .ranking-grid {
+    animation: show-cards 180ms ease-out both;
+  }
+
+  .candidate-card {
+    transition: box-shadow 140ms, transform 140ms, border-color 140ms;
+  }
+
+  .candidate-card:active {
+    transform: translateY(2px);
+  }
+}
+
+@keyframes mark-title {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0); }
+}
+
+@keyframes show-cards {
+  from { opacity: .7; }
+  to { opacity: 1; }
+}
+
 @media(max-width:960px) {
   .ranking-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -532,15 +663,26 @@ del {
     width: calc(100% - 28px);
   }
   .hero {
-    padding-bottom: 14px;
+    padding-bottom: 10px;
+  }
+  .hero-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
   .intro {
     font-size: .94rem;
+    padding: 0;
+    border-left: 0;
+  }
+  .intro br {
+    display: none;
   }
   .controls {
     grid-template-columns: repeat(2, minmax(0,1fr));
     gap: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
+    padding: 7px 8px;
   }
   .controls label:first-child {
     grid-column: 1 / -1;
@@ -548,6 +690,13 @@ del {
   .ranking-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
+  }
+  .ranking-heading {
+    flex-wrap: wrap;
+    gap: 2px 10px;
+  }
+  .ranking-heading p {
+    font-size: .81rem;
   }
   .card-body {
     padding: 9px 10px 11px;
