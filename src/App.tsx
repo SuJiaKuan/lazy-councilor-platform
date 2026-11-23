@@ -6,6 +6,7 @@ import { loadPeople } from './people';
 import type { Person } from './people';
 
 type Dataset = { status: 'loading' | 'error' } | { status: 'ready'; people: Person[] };
+const homeTitle = document.title;
 
 function pageUrl(id?: string) {
   const url = new URL(window.location.href);
@@ -48,6 +49,10 @@ export function App() {
   }, []);
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), []);
+
+  useEffect(() => {
+    document.title = person ? `${person.name}的兩屆政見比對 | 誰是政見偷懶王` : homeTitle;
+  }, [person]);
 
   useEffect(() => {
     if (dataset.status !== 'ready') return;
