@@ -1,10 +1,12 @@
 type DiffFragment<Change extends '+' | '-'> = readonly ['=' | Change, string];
 
 interface PersonInfo {
+  id: string;
   name: string;
   city: string;
   district: string | number;
-  terms: number;
+  terms?: number;
+  sourceLabels?: readonly [string, string];
   sources: readonly [string, string];
 }
 
@@ -14,6 +16,7 @@ export interface ScoredPerson extends PersonInfo {
   added: number;
   removed: number;
   note: string;
+  transcribed?: boolean;
   oldDiff: DiffFragment<'-'>[];
   newDiff: DiffFragment<'+'>[];
 }
@@ -59,4 +62,19 @@ export function formattedCounts(person: ScoredPerson) {
 
 export function constituency(person: Person) {
   return `${person.city}・第 ${person.district} 選區`;
+}
+
+export function compareRetention(a: ScoredPerson, b: ScoredPerson) {
+  return b.keep * totalChars(a) - a.keep * totalChars(b);
+}
+
+export function retentionRanks(people: ScoredPerson[]) {
+  const ordered = [...people].sort(compareRetention);
+  const ranks = new Map<string, number>();
+  let rank = 0;
+  for (const [index, person] of ordered.entries()) {
+    if (index === 0 || compareRetention(ordered[index - 1], person) !== 0) rank = index + 1;
+    ranks.set(person.id, rank);
+  }
+  return ranks;
 }

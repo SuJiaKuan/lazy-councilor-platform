@@ -2,17 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { Comparison } from './components/Comparison';
 import { Method } from './components/Method';
 import { ProfileDialog } from './components/ProfileDialog';
-import { loadPeople } from './people';
+import { isScored, loadPeople } from './people';
 import type { Person } from './people';
 
 type Dataset = { status: 'loading' | 'error' } | { status: 'ready'; people: Person[] };
-const cityNames = new Intl.ListFormat('zh-TW', { style: 'narrow' });
-const cityOrder = ['臺北市', '新北市'];
 
-function pageUrl(name?: string) {
+function pageUrl(id?: string) {
   const url = new URL(window.location.href);
-  if (name) url.searchParams.set('name', name);
-  else url.searchParams.delete('name');
+  url.searchParams.delete('name');
+  if (id) url.searchParams.set('id', id);
+  else url.searchParams.delete('id');
   url.hash = '';
   return url;
 }
@@ -29,8 +28,12 @@ export function App() {
     loadPeople(controller.signal).then((people) => {
       if (controller.signal.aborted) return;
       setDataset({ status: 'ready', people });
-      const name = new URL(window.location.href).searchParams.get('name');
-      setPerson(people.find((candidate) => candidate.name === name));
+      const params = new URL(window.location.href).searchParams;
+      const name = params.get('name');
+      const oldMatches = people.filter((candidate) => candidate.name === name);
+      const legacy = oldMatches.find((candidate) => candidate.terms !== undefined);
+      setPerson(people.find((candidate) => candidate.id === params.get('id')) ??
+        legacy ?? (oldMatches.length === 1 ? oldMatches[0] : undefined));
     }).catch((error: unknown) => {
       if (controller.signal.aborted) return;
       console.error(error);
@@ -41,8 +44,8 @@ export function App() {
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), []);
 
-  async function share(name?: string) {
-    const url = pageUrl(name);
+  async function share(id?: string) {
+    const url = pageUrl(id);
     try {
       await navigator.clipboard.writeText(url.href);
       setCopiedUrl(url);
@@ -55,28 +58,22 @@ export function App() {
 
   function openProfile(selected: Person, button: HTMLButtonElement) {
     opener.current = button;
-    history.replaceState(null, '', pageUrl(selected.name));
+    history.replaceState(null, '', pageUrl(selected.id));
     setPerson(selected);
   }
 
   function closeProfile() {
-    if (new URL(window.location.href).searchParams.has('name')) {
-      history.replaceState(null, '', pageUrl());
-    }
+    history.replaceState(null, '', pageUrl());
     setPerson(undefined);
     setCopiedUrl(undefined);
     opener.current?.focus({ preventScroll: true });
     opener.current = null;
   }
 
-  const counts = new Map<string, number>();
-  if (dataset.status === 'ready') {
-    for (const candidate of dataset.people) {
-      counts.set(candidate.city, (counts.get(candidate.city) ?? 0) + 1);
-    }
-  }
-  const cities = [...cityOrder.filter((city) => counts.has(city)),
-    ...[...counts.keys()].filter((city) => !cityOrder.includes(city)).sort()];
+  const people = dataset.status === 'ready' ? dataset.people : [];
+  const cities = [...new Set(people.map((candidate) => candidate.city))];
+  const scored = people.filter(isScored);
+  const ranked = scored.filter((candidate) => !candidate.note || candidate.transcribed).length;
 
   return (
     <>
@@ -95,18 +92,13 @@ export function App() {
             <p className="kicker">議員選舉公報・2022–2026</p>
             <h1>誰是政見偷懶王</h1>
             <p className="subtitle">那些 2026 尋求連任的議員們</p>
-            <p className="intro">比較目前收錄的雙北議員政見文字。依字元保留率排序，點開可看兩屆公報的逐字增刪。</p>
+            <p className="intro">查詢全國 2022 年當選、2026 年再參選的議員。依兩屆公報的字元保留率排序，點開可查看逐字增刪與來源。</p>
           </div>
           {dataset.status === 'ready' && (
             <div className="hero-numbers" aria-label="樣本構成">
               <div><strong>{dataset.people.length}</strong><span>位議員</span></div>
-              {cities.length > 0 && (
-                <div>
-                  <strong>{cities.map((city) => counts.get(city)).join(' / ')}</strong>
-                  <span>{cityNames.format(cities)}</span>
-                </div>
-              )}
-              <div><strong>2022–26</strong><span>公報比較期間</span></div>
+              <div><strong>{cities.length}</strong><span>個縣市</span></div>
+              <div><strong>{ranked}</strong><span>位列入初步排名</span></div>
             </div>
           )}
         </section>
@@ -116,7 +108,7 @@ export function App() {
             <a className="muted method-link" href="#method">這些數字怎麼算？</a>
           </div>
           {dataset.status === 'ready' && (
-            <Comparison people={dataset.people} cities={cities} onSelect={openProfile} />
+            <Comparison people={people} cities={cities} onSelect={openProfile} />
           )}
           {dataset.status === 'loading' && <p role="status">載入資料中…</p>}
           {dataset.status === 'error' && <p role="alert">資料載入失敗，請重新整理。</p>}
@@ -124,7 +116,7 @@ export function App() {
         <Method />
       </main>
       <ProfileDialog person={person} onClose={closeProfile} onShare={share}
-        copied={Boolean(person && copiedUrl?.searchParams.get('name') === person.name)} />
+        copied={Boolean(person && copiedUrl?.searchParams.get('id') === person.id)} />
       <div className="toast" role="status" hidden={!copiedUrl || Boolean(person)}>已複製網址</div>
     </>
   );

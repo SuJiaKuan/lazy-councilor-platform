@@ -6,13 +6,14 @@ const people = JSON.parse(readFileSync(new URL('../public/data.json', import.met
 
 test('every record supports a unique profile link and two source links', () => {
   assert.ok(Array.isArray(people) && people.length > 0);
-  const names = new Set();
+  const ids = new Set();
   for (const person of people) {
     assert.ok(typeof person.name === 'string' && person.name.trim());
-    assert.ok(!names.has(person.name), `Duplicate profile name: ${person.name}`);
-    names.add(person.name);
+    assert.match(person.id, /^[a-z][a-z0-9-]+$/);
+    assert.ok(!ids.has(person.id), `Duplicate profile ID: ${person.id}`);
+    ids.add(person.id);
     assert.ok(typeof person.city === 'string' && person.city.trim(), person.name);
-    assert.ok(Number.isInteger(person.terms) && person.terms > 0, person.name);
+    if (person.terms !== undefined) assert.ok(Number.isInteger(person.terms) && person.terms > 0, person.name);
     assert.equal(person.sources.length, 2, person.name);
     for (const source of person.sources) {
       assert.equal(new URL(source).protocol, 'https:', person.name);

@@ -4,3 +4,5 @@
 *.local
 *.zip
 __pycache__/
+
+/data/platform-csv/

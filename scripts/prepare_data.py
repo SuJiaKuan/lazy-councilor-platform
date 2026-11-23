@@ -124,16 +124,19 @@ def compare(person):
     left, left_display = display_and_key(old)
     right, right_display = display_and_key(new)
     assert left and right
+    return {**entry, **compare_text(left, right, left_display, right_display),
+            'note': APPROXIMATE.get(name, '')}
+
+
+def compare_text(left, right, left_display, right_display):
     ops = operations(left, right)
     assert ''.join(piece for kind, piece in ops if kind != '+') == left
     assert ''.join(piece for kind, piece in ops if kind != '-') == right
     counts = {kind: sum(len(piece) for op, piece in ops if op == kind) for kind in '=-+'}
     return {
-        **entry,
         'oldDiff': project_operations(ops, left_display, '+'),
         'newDiff': project_operations(ops, right_display, '-'),
         'keep': counts['='], 'added': counts['+'], 'removed': counts['-'],
-        'note': APPROXIMATE.get(name, ''),
     }
 
 

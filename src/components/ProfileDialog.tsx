@@ -6,13 +6,17 @@ interface Props {
   person: Person | undefined;
   copied: boolean;
   onClose: () => void;
-  onShare: (name: string) => void;
+  onShare: (id: string) => void;
 }
 
-function DiffColumn({ year, diff }: { year: number; diff: ScoredPerson['oldDiff'] | ScoredPerson['newDiff'] }) {
+function DiffColumn({ year, label, diff }: {
+  year: number;
+  label: string;
+  diff: ScoredPerson['oldDiff'] | ScoredPerson['newDiff'];
+}) {
   return (
     <section className="diff-column">
-      <h4>{year} 政見全文</h4>
+      <h4>{year} {label}</h4>
       <p className="diff-text">
         {diff.map(([op, content], index) => (
           <Fragment key={index}>
@@ -45,17 +49,17 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
         <div className="sheet">
           <header className="sheet-head">
             <div>
-              <p className="kicker">{constituency(person)}・截至 2022 當選 {person.terms} 屆</p>
+              <p className="kicker">{constituency(person)}{person.terms && `・截至 2022 當選 ${person.terms} 屆`}</p>
               <h2 id="profile-name">{person.name}</h2>
             </div>
             <button ref={closeButton} type="button" className="share"
               onClick={() => dialog.current?.close()}>關閉</button>
           </header>
           <div className="profile-links">
-            <a href={person.sources[0]} target="_blank" rel="noopener">2022 官方公報</a>
-            <a href={person.sources[1]} target="_blank" rel="noopener">2026 官方公報</a>
+            <a href={person.sources[0]} target="_blank" rel="noopener">{person.sourceLabels?.[0] ?? '2022 官方公報'}</a>
+            <a href={person.sources[1]} target="_blank" rel="noopener">{person.sourceLabels?.[1] ?? '2026 官方公報'}</a>
             <button type="button" className="text-button"
-              onClick={() => onShare(person.name)}>複製個人連結</button>
+              onClick={() => onShare(person.id)}>複製個人連結</button>
           </div>
           {isScored(person) ? (
             <>
@@ -68,8 +72,8 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
                 <h3>全文逐字差異</h3>
                 <div className="diff-key"><del>刪除文字</del><ins>新增文字</ins><span>保留文字</span></div>
                 <div className="diff-columns">
-                  <DiffColumn year={2022} diff={person.oldDiff} />
-                  <DiffColumn year={2026} diff={person.newDiff} />
+                  <DiffColumn year={2022} label={person.note ? '政見比對稿' : '政見全文'} diff={person.oldDiff} />
+                  <DiffColumn year={2026} label={person.note ? '政見比對稿' : '政見全文'} diff={person.newDiff} />
                 </div>
               </section>
             </>

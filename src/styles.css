@@ -580,12 +580,19 @@ del {
   }
 }
 
-.pending h3 {
+.pending summary {
   font-size: 1.02rem;
   margin: 0;
   padding: 14px 0 8px;
   color: var(--muted);
   border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.rank {
+  color: var(--green);
+  font-size: .8rem;
+  white-space: nowrap;
 }
 
 .pending-reason {
@@ -620,4 +627,21 @@ del {
   font-size: clamp(1.2rem, 2.6vw, 1.55rem);
   font-weight: 700;
   margin-bottom: .6rem;
+}
+
+.ranking-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: .9rem;
+}
+
+.ranking-toggle input {
+  width: auto;
+  min-height: 0;
+  margin: 0;
+}
+
+.rank {
+  margin-inline-end: .4rem;
 }

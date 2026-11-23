@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { constituency, formattedCounts, formattedRetention, isScored, retention } from '../people';
+import { compareRetention, constituency, formattedCounts, formattedRetention, isScored, retention, retentionRanks } from '../people';
 import type { Person } from '../people';
 
 interface Props {
@@ -14,15 +14,21 @@ const searchKey = (name: string) => name.trim().replaceAll('台', '臺');
 export function Comparison({ people, cities, onSelect }: Props) {
   const [query, setQuery] = useState('');
   const [city, setCity] = useState('');
+  const [confirmedOnly, setConfirmedOnly] = useState(false);
   const visible = people.filter((person) =>
     (!city || person.city === city) && searchKey(person.name).includes(searchKey(query)),
   );
-  const scored = visible.filter(isScored).sort((a, b) =>
-    retention(b) - retention(a) || a.name.localeCompare(b.name, 'zh-TW'),
-  );
-  const pending = visible.filter((person) => !isScored(person));
   const allScored = people.filter(isScored);
-  const approximate = allScored.filter((person) => person.note).length;
+  const confirmed = allScored.filter((person) => !person.note);
+  const rankable = confirmedOnly ? confirmed : allScored.filter((person) => !person.note || person.transcribed);
+  const ranks = retentionRanks(rankable);
+  const scored = visible.filter(isScored).filter((person) => !confirmedOnly || !person.note).sort((a, b) =>
+    Number(ranks.has(b.id)) - Number(ranks.has(a.id)) ||
+    compareRetention(a, b) || a.name.localeCompare(b.name, 'zh-TW'),
+  );
+  const pending = confirmedOnly ? [] : visible.filter((person) => !isScored(person));
+  const approximate = allScored.length - confirmed.length;
+  const shown = scored.length + pending.length;
 
   return (
     <>
@@ -40,16 +46,21 @@ export function Comparison({ people, cities, onSelect }: Props) {
           </select>
         </label>
       </div>
+      <label className="ranking-toggle">
+        <input type="checkbox" checked={confirmedOnly}
+          onChange={(event) => setConfirmedOnly(event.target.checked)} />
+        只看已核對排名
+      </label>
       <div className="legend">
         <p>保留字元 ÷ 2026 政見總字元</p>
-        <span id="count" role="status">顯示 {visible.length}／{people.length} 人</span>
+        <span id="count" role="status">顯示 {shown}／{people.length} 人</span>
       </div>
       <p className="subtle">
-        {allScored.length} 人顯示字元保留率，其中 {approximate} 人標為試算。
-        {people.length - allScored.length} 人列於「待補原文」。
+        已核對 {confirmed.length} 人，試算 {approximate} 人，待補原文 {people.length - allScored.length} 人。
+        {confirmedOnly ? '名次依全站已核對資料計算。' : '全國名次含公報轉錄試算。摘要或摘錄的試算不列名次。'}
       </p>
       <div className="chart" aria-label="議員比較結果">
-        {visible.length === 0 && <p>沒有符合的人選。可清除姓名或切換縣市。</p>}
+        {shown === 0 && <p>沒有符合的人選。可調整篩選條件。</p>}
         {scored.length > 0 && (
           <div className="axis" aria-hidden="true">
             <span>議員</span>
@@ -57,11 +68,12 @@ export function Comparison({ people, cities, onSelect }: Props) {
           </div>
         )}
         {scored.map((person) => (
-          <button key={person.name} className="row" type="button"
+          <button key={person.id} className="row" type="button"
             onClick={(event) => onSelect(person, event.currentTarget)}>
             <span className="person">
               <strong>{person.name}</strong>
-              {person.note && <span className="approx">含摘要・試算</span>}
+              {ranks.has(person.id) && <span className="rank">第 {ranks.get(person.id)} 名</span>}
+              {person.note && <span className="approx">試算</span>}
               <small>{constituency(person)}</small>
             </span>
             <span className="track" aria-hidden="true">
@@ -71,10 +83,10 @@ export function Comparison({ people, cities, onSelect }: Props) {
           </button>
         ))}
         {pending.length > 0 && (
-          <section className="pending">
-            <h3>待補原文</h3>
+          <details className="pending" open={Boolean(query.trim() || city)}>
+            <summary>待補原文（{pending.length} 人）</summary>
             {pending.map((person) => (
-              <button key={person.name} className="row pending-row" type="button"
+              <button key={person.id} className="row pending-row" type="button"
                 onClick={(event) => onSelect(person, event.currentTarget)}>
                 <span className="person">
                   <strong>{person.name}</strong><small>{constituency(person)}</small>
@@ -83,7 +95,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
                 <span className="pending-label">暫不計分</span>
               </button>
             ))}
-          </section>
+          </details>
         )}
       </div>
     </>
