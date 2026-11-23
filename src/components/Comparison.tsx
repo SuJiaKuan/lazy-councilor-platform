@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { compareRetention, constituency, formattedCounts, formattedRetention, fullRetentionLabel, isScored, retention, retentionRanks } from '../people';
 import type { Person } from '../people';
+import { Portrait } from './Portrait';
 
 interface Props {
   people: Person[];
@@ -14,9 +15,15 @@ const searchKey = (name: string) => name.trim().replaceAll('台', '臺');
 export function Comparison({ people, cities, onSelect }: Props) {
   const [query, setQuery] = useState('');
   const [city, setCity] = useState('');
+  const [district, setDistrict] = useState('');
   const [confirmedOnly, setConfirmedOnly] = useState(false);
-  const visible = people.filter((person) =>
-    (!city || person.city === city) && searchKey(person.name).includes(searchKey(query)),
+  const cityPeople = city ? people.filter((person) => person.city === city) : people;
+  const districts = [...new Set(cityPeople.map((person) => String(person.district)))].sort(
+    (a, b) => a.localeCompare(b, 'zh-TW', { numeric: true }),
+  );
+  const visible = cityPeople.filter((person) =>
+    (!district || String(person.district) === district) &&
+    searchKey(person.name).includes(searchKey(query)),
   );
   const allScored = people.filter(isScored);
   const confirmed = allScored.filter((person) => !person.note);
@@ -41,9 +48,19 @@ export function Comparison({ people, cities, onSelect }: Props) {
         </label>
         <label>
           縣市
-          <select value={city} onChange={(event) => setCity(event.target.value)}>
+          <select value={city} onChange={(event) => {
+            setCity(event.target.value);
+            setDistrict('');
+          }}>
             <option value="">全部縣市</option>
             {cities.map((name) => <option key={name}>{name}</option>)}
+          </select>
+        </label>
+        <label>
+          選區
+          <select value={district} onChange={(event) => setDistrict(event.target.value)}>
+            <option value="">全部選區</option>
+            {districts.map((value) => <option key={value} value={value}>第 {value} 選區</option>)}
           </select>
         </label>
       </div>
@@ -75,11 +92,14 @@ export function Comparison({ people, cities, onSelect }: Props) {
         {scored.map((person) => (
           <button key={person.id} className="row" type="button"
             onClick={(event) => onSelect(person, event.currentTarget)}>
-            <span className="person">
-              <strong>{person.name}</strong>
-              {ranks.has(person.id) && <span className="rank">第 {ranks.get(person.id)} 名</span>}
-              {person.note && !person.transcribed && <span className="approx">摘要或摘錄</span>}
-              <small>{constituency(person)}</small>
+            <span className="person person-with-portrait">
+              <Portrait person={person} />
+              <span>
+                <strong>{person.name}</strong>
+                {ranks.has(person.id) && <span className="rank">第 {ranks.get(person.id)} 名</span>}
+                {person.note && !person.transcribed && <span className="approx">摘要或摘錄</span>}
+                <small>{constituency(person)}{person.party && `・${person.party}`}</small>
+              </span>
             </span>
             <span className="track" aria-hidden="true">
               <span className="fill" style={{ width: `${retention(person) * 100}%` }} />
@@ -92,13 +112,17 @@ export function Comparison({ people, cities, onSelect }: Props) {
           </button>
         ))}
         {pending.length > 0 && (
-          <details className="pending" open={Boolean(query.trim() || city)}>
+          <details className="pending" open={Boolean(query.trim() || city || district)}>
             <summary>待補原文（{pending.length} 人）</summary>
             {pending.map((person) => (
               <button key={person.id} className="row pending-row" type="button"
                 onClick={(event) => onSelect(person, event.currentTarget)}>
-                <span className="person">
-                  <strong>{person.name}</strong><small>{constituency(person)}</small>
+                <span className="person person-with-portrait">
+                  <Portrait person={person} />
+                  <span>
+                    <strong>{person.name}</strong>
+                    <small>{constituency(person)}{person.party && `・${person.party}`}</small>
+                  </span>
                 </span>
                 <span className="pending-reason">{person.unscoredReason}</span>
                 <span className="pending-label">暫不計分</span>

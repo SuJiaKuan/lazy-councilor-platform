@@ -5,6 +5,8 @@ interface PersonInfo {
   name: string;
   city: string;
   district: string | number;
+  party?: string;
+  portrait?: { url: string; source: string };
   terms?: number;
   sourceLabels?: readonly [string, string];
   sources: readonly [string, string];

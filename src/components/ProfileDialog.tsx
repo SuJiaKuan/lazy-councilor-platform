@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef } from 'react';
 import { constituency, formattedCounts, formattedRetention, fullRetentionLabel, isScored } from '../people';
 import type { Person, ScoredPerson } from '../people';
+import { Portrait } from './Portrait';
 
 interface Props {
   person: Person | undefined;
@@ -48,9 +49,13 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
       {person && (
         <div className="sheet">
           <header className="sheet-head">
-            <div>
-              <p className="kicker">{constituency(person)}{person.terms && `・截至 2022 當選 ${person.terms} 屆`}</p>
-              <h2 id="profile-name">{person.name}</h2>
+            <div className="person-with-portrait">
+              <Portrait key={person.id} person={person} />
+              <div>
+                <p className="kicker">{constituency(person)}{person.terms && `・截至 2022 當選 ${person.terms} 屆`}</p>
+                <h2 id="profile-name">{person.name}</h2>
+                {person.party && <p className="subtle">{person.party === '無黨籍' ? '2026 無黨籍參選' : `2026 推薦政黨・${person.party}`}</p>}
+              </div>
             </div>
             <button ref={closeButton} type="button" className="share"
               onClick={() => dialog.current?.close()}>關閉</button>
@@ -58,6 +63,7 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
           <div className="profile-links">
             <a href={person.sources[0]} target="_blank" rel="noopener">{person.sourceLabels?.[0] ?? '2022 官方公報'}</a>
             <a href={person.sources[1]} target="_blank" rel="noopener">{person.sourceLabels?.[1] ?? '2026 官方公報'}</a>
+            {person.portrait && <a href={person.portrait.source} target="_blank" rel="noopener">照片來源（內政部）</a>}
             <button type="button" className="text-button"
               onClick={() => onShare(person.id)}>複製個人連結</button>
           </div>

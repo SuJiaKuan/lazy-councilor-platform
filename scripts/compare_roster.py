@@ -128,6 +128,7 @@ def compare_entry(row, existing, platforms):
         'name': row['2026候選姓名'],
         'city': city,
         'district': int(row['2026選區']),
+        'party': row['2026推薦政黨'],
         'sources': [source or fallback for source, fallback in zip(sources, fallback_sources)],
         'sourceLabels': [
             f'{year} ' + ('官方公報' if source else '選委會資料')
@@ -137,6 +138,8 @@ def compare_entry(row, existing, platforms):
     if existing and 'terms' in existing:
         base['terms'] = existing['terms']
         base['name'] = existing['name']
+    if existing and 'portrait' in existing:
+        base['portrait'] = existing['portrait']
 
     normalized = []
     missing = []

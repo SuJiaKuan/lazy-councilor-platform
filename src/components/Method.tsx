@@ -39,6 +39,11 @@ export function Method() {
         文字底稿採用 Taiwan Votes 的公報轉錄（整理層 CC BY 4.0），以原始公報為準。
         各議員的原頁連結見個別明細。
       </p>
+      <p className="subtle">
+        政黨依 2026 候選人名冊的推薦政黨欄位。照片取自
+        <a href="https://www.moi.gov.tw/cl.aspx?n=12" target="_blank" rel="noopener">內政部地方公職人員資訊專區</a>，
+        採用議員名錄肖像，缺少照片時顯示姓名首字。
+      </p>
     </section>
   );
 }
