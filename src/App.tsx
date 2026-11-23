@@ -16,6 +16,16 @@ function pageUrl(id?: string) {
   return url;
 }
 
+function findLinkedProfile(people: Person[]) {
+  const params = new URL(window.location.href).searchParams;
+  const name = params.get('name');
+  const id = params.get('id');
+  const oldMatches = people.filter((person) => person.name === name);
+  return people.find((person) => person.id === id) ??
+    oldMatches.find((person) => person.terms !== undefined) ??
+    (oldMatches.length === 1 ? oldMatches[0] : undefined);
+}
+
 export function App() {
   const [dataset, setDataset] = useState<Dataset>({ status: 'loading' });
   const [person, setPerson] = useState<Person>();
@@ -28,12 +38,7 @@ export function App() {
     loadPeople(controller.signal).then((people) => {
       if (controller.signal.aborted) return;
       setDataset({ status: 'ready', people });
-      const params = new URL(window.location.href).searchParams;
-      const name = params.get('name');
-      const oldMatches = people.filter((candidate) => candidate.name === name);
-      const legacy = oldMatches.find((candidate) => candidate.terms !== undefined);
-      setPerson(people.find((candidate) => candidate.id === params.get('id')) ??
-        legacy ?? (oldMatches.length === 1 ? oldMatches[0] : undefined));
+      setPerson(findLinkedProfile(people));
     }).catch((error: unknown) => {
       if (controller.signal.aborted) return;
       console.error(error);
@@ -43,6 +48,23 @@ export function App() {
   }, []);
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), []);
+
+  useEffect(() => {
+    if (dataset.status !== 'ready') return;
+    const people = dataset.people;
+    function followHistory() {
+      const linked = findLinkedProfile(people);
+      setPerson(linked);
+      setCopiedUrl(undefined);
+      if (!linked) {
+        const button = opener.current;
+        opener.current = null;
+        requestAnimationFrame(() => button?.focus({ preventScroll: true }));
+      }
+    }
+    window.addEventListener('popstate', followHistory);
+    return () => window.removeEventListener('popstate', followHistory);
+  }, [dataset]);
 
   async function share(id: string) {
     const url = pageUrl(id);
@@ -58,12 +80,17 @@ export function App() {
 
   function openProfile(selected: Person, button: HTMLButtonElement) {
     opener.current = button;
-    history.replaceState(null, '', pageUrl(selected.id));
+    history.pushState({ profileFromRanking: true }, '', pageUrl(selected.id));
     setPerson(selected);
   }
 
   function closeProfile() {
-    history.replaceState(null, '', pageUrl());
+    if (!person) return;
+    if (history.state?.profileFromRanking) {
+      history.back();
+      return;
+    }
+    history.replaceState(history.state, '', pageUrl());
     setPerson(undefined);
     setCopiedUrl(undefined);
     opener.current?.focus({ preventScroll: true });

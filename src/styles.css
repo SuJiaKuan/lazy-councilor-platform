@@ -171,6 +171,14 @@ h2 {
   margin-bottom: clamp(22px, 3vw, 34px);
 }
 
+.ranking-filters {
+  display: contents;
+}
+
+.filter-toggle, .applied-filters {
+  display: none;
+}
+
 label {
   font-size: .82rem;
   font-weight: 620;
@@ -455,6 +463,30 @@ select {
   margin-top: 18px;
 }
 
+.load-more {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.load-more p {
+  margin: 0;
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.load-more button {
+  width: min(100%, 23rem);
+  min-height: 48px;
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  background: var(--red);
+  color: white;
+  font-weight: 650;
+  overflow-anchor: none;
+}
+
 .pagination button, .pagination select {
   width: auto;
   min-height: 44px;
@@ -601,9 +633,11 @@ dialog::backdrop {
 
 .profile-actions {
   display: flex;
+  float: right;
   flex: none;
   flex-wrap: wrap;
   gap: 8px;
+  margin-inline-start: 12px;
 }
 
 .profile-actions button {
@@ -789,20 +823,6 @@ del {
     font-size: .92rem;
     margin-top: 8px;
   }
-  .controls {
-    grid-template-columns: repeat(2, minmax(0,1fr));
-    gap: 8px;
-    margin-bottom: 13px;
-  }
-  .controls select {
-    padding-right: 25px;
-    background-position: calc(100% - 13px) 53%,calc(100% - 8px) 53%;
-  }
-  .controls-reset {
-    grid-column: 1 / -1;
-    justify-self: end;
-    min-height: 44px;
-  }
   .ranking-grid {
     gap: 22px 12px;
   }
@@ -819,19 +839,145 @@ del {
 }
 
 @media(max-width:760px) {
+  .controls {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 8px;
+    margin-bottom: 17px;
+  }
+  .name-search > span {
+    display: none;
+  }
+  .name-search input {
+    margin: 0;
+  }
+  .filter-toggle {
+    display: block;
+    min-height: 46px;
+    padding-inline: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--red);
+    white-space: nowrap;
+  }
+  .filter-toggle[aria-expanded="true"] {
+    border-color: var(--red);
+  }
+  .ranking-filters {
+    display: none;
+  }
+  .ranking-filters[data-open="true"] {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding-block: 5px;
+  }
+  .ranking-filters select {
+    padding-right: 25px;
+    background-position: calc(100% - 13px) 53%, calc(100% - 8px) 53%;
+  }
+  .applied-filters {
+    display: flex;
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .applied-filters button {
+    min-height: 44px;
+    padding: 4px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--soft);
+    font-size: .82rem;
+  }
+  .controls-reset {
+    grid-column: 1 / -1;
+    justify-self: start;
+    padding-inline: 4px;
+    min-height: 44px;
+  }
+  .controls-reset:disabled {
+    display: none;
+  }
   .ranking-grid {
     grid-template-columns: 1fr;
   }
-}
-
-@media(max-width:560px) {
-  .sheet-head {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
+  .candidate-name {
+    order: -3;
+    margin-top: 0;
+  }
+  .candidate-score, .card-note {
+    order: -2;
+    min-height: auto;
+    flex: none;
+    margin: 6px 0 8px;
+  }
+  .candidate-meta {
+    margin-top: 4px;
+  }
+  .card-link {
+    margin-top: auto;
+    padding-top: 6px;
+  }
+  body:has(dialog[open]) {
+    overflow: hidden;
+  }
+  dialog {
+    --toolbar-height: calc(57px + env(safe-area-inset-top, 0px));
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    overscroll-behavior: contain;
+  }
+  .sheet {
+    padding: 0 16px calc(20px + env(safe-area-inset-bottom, 0px));
   }
   .profile-actions {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    float: none;
     justify-content: space-between;
+    gap: 6px;
+    margin: 0 -16px 14px;
+    padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 6px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .full-diff h3 {
+    scroll-margin-top: calc(var(--toolbar-height) + 8px);
+  }
+  .year-tabs {
+    position: sticky;
+    z-index: 1;
+    top: var(--toolbar-height);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-block: 8px;
+    background: var(--paper);
+  }
+  .year-tabs button {
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    font-weight: 650;
+  }
+  .year-tabs button[aria-selected="true"] {
+    border-color: var(--red);
+    background: #f6ebe7;
+    color: var(--red);
   }
   .diff-columns {
     grid-template-columns: 1fr;
