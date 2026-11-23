@@ -1,4 +1,4 @@
-"""Update public/data.json from the re-election roster and local platform CSVs."""
+"""Build comparison data from the re-election roster and Taiwan Votes CSVs."""
 
 import argparse
 import csv
@@ -181,6 +181,7 @@ def main():
         roster = list(csv.DictReader(stream))
     if not roster or len({row['id'] for row in roster}) != len(roster):
         parser.error('連任名單須至少有一筆，且 id 必須唯一。')
+    # Preserve curated display names, term counts, and portraits when regenerating.
     existing = json.loads(PUBLIC_DATA.read_text(encoding='utf-8'))
     by_id = {person['id']: person for person in existing if 'id' in person}
     legacy = {(person['city'], name_key(person['name'])): person

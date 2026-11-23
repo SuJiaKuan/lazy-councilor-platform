@@ -1,8 +1,20 @@
 # 誰是政見偷懶王
 
-那些 2026 尋求連任的議員們。用選舉公報比較 2022 與 2026 的政見文字，顯示文字保留率、逐字增刪及個別公報來源。
+四年前寫過的政見，這次又出現了多少？本站逐字比對 2022 與 2026 年議員選舉公報的政見，呈現文字保留率、全國排名與全文增刪。
 
-涵蓋全國 22 縣市在 2022 年當選且 2026 年再參選的 695 人。兩屆都以 Taiwan Votes 的公報轉錄為底稿。文字保留率描述文字重用程度，履約與問政表現需另查執行紀錄。
+目前涵蓋全國 22 縣市在 2022 年當選且 2026 年再參選的 695 人，其中 683 人列入排名，12 人暫不計分。兩屆都以 Taiwan Votes 的公報轉錄為底稿，原始公報連結見個人明細。文字保留率描述文字重用程度，履約與問政表現需另查執行紀錄。
+
+## 網站使用方式
+
+- 可依姓名、縣市、選區及黨籍篩選，也可一次清除所有條件。選區須先選縣市，搜尋結果沿用全國排名。
+- 桌面版每頁顯示 12 人。手機版先顯示 8 人，可分批展開。
+- 點開議員卡片可查看兩屆全文、逐字增刪、照片與資料來源，並複製個人連結。新連結使用 `?id=`，既有 `?name=` 連結仍可開啟可辨識的對象。
+
+## 文字保留率與排名
+
+政見先統一全半形、大小寫及少數異體字，並略過空白、一般標點與手機號碼，再用最長共同子序列（LCS）找出依原順序保留的字元。文字保留率為「2 × 共同字元數 ÷ 兩屆字元數總和」。新增和刪除都會降低分數。本站採用 ROUGE-L 的等權 F1 形式。 [ROUGE 論文](https://aclanthology.org/W04-1013/)
+
+排序與六級分級都使用未四捨五入的分數，分數完全相同才並列。已知轉錄缺文、順序錯置或圖檔政見缺少可核對全文時，該筆暫不計分。若資料含有舊版的人工摘要試算紀錄，該筆可查看試算結果，順位留空。
 
 ## 開發與建置
 
@@ -16,26 +28,31 @@ npm run dev
 開啟 http://localhost:5174/ 。Vite 提供即時更新，React 元件支援 Fast Refresh。開發伺服器使用固定埠，埠被佔用時會報錯。
 
 ```sh
-npm run check    # TypeScript 型別與資料契約
+npm run check    # TypeScript 型別、公開資料格式、排名與分級測試
 npm run build    # 產出 dist/
 npm run preview  # 在 http://localhost:4173/ 預覽建置結果
 ```
 
-正式部署時將 `dist/` 交給靜態主機，入口是 `index.html`。建置使用相對資產路徑，因此可部署在網域根目錄或子目錄。
+## 靜態部署
 
-正式網址確定後，在主機的建置環境設定 `SITE_URL` 為完整的 HTTPS 首頁網址。建置時會加入搜尋引擎的標準網址、分享預覽圖與網站結構化資料。
+在主機上以儲存庫根目錄執行 `npm ci` 和 `npm run build`，發布 `dist/`，入口為 `index.html`。建置使用相對資產路徑，因此可部署在網域根目錄或子目錄。
+
+正式網址確定後，在主機的建置環境設定 `SITE_URL` 為完整的 HTTPS 首頁網址，部署在子目錄時也一併填入路徑。建置時會加入標準網址、全站共用的社群預覽圖與網站結構化資料。個人頁在瀏覽器開啟後，分頁標題會帶入議員姓名。
 
 ## 專案結構
 
 | 路徑 | 用途 |
 | --- | --- |
-| `src/App.tsx` | 頁首、樣本統計、載入狀態與分享網址 |
+| `src/App.tsx` | 頁首、資料載入、個人連結與分享 |
 | `src/components/` | 排名與篩選、議員明細、方法與來源 |
-| `src/people.ts` | 資料型別、載入與文字保留率 |
-| `src/styles.css` | 網站樣式與響應式版面 |
+| `src/people.ts` | 資料型別、載入、文字保留率、排名與分級 |
+| `src/styles.css`、`src/useMobile.ts` | 響應式樣式與手機版互動 |
+| `index.html`、`vite.config.ts`、`public/share.png` | 網站標題、搜尋中繼資料、分享預覽與建置設定 |
 | `public/data.json` | 公開資料，開發與正式建置共用 |
-| `scripts/prepare_data.py` | 上游文字資料轉成公開 JSON |
-| `tests/dataset.test.js` | 檢查公開資料格式與明細連結 |
+| `data/reelection-2026.csv`、`data/reelection-2026-summary.csv` | 連任名單與縣市收錄統計 |
+| `scripts/download_platforms.py`、`scripts/compare_roster.py` | 下載政見 CSV、依名冊產生公開 JSON |
+| `scripts/prepare_data.py` | 舊版資料匯入工具，提供現行流程共用的文字正規化與逐字比對 |
+| `tests/` | 公開資料格式、文字保留率、排名與分級測試 |
 
 ## 黨徽來源
 
@@ -51,21 +68,13 @@ npm run preview  # 在 http://localhost:4173/ 預覽建置結果
 
 ## 更新資料
 
-下載兩屆共六份 Taiwan Votes 公報政見 CSV，再依連任名單產出候選檔。確認差異後更新 `public/data.json`。
+下載兩屆共六份 Taiwan Votes 公報政見 CSV 至 `data/platform-csv/`，再依連任名單產出候選檔。下載的 CSV 只放在本機。生成器也會從現有的 `public/data.json` 沿用已整理的姓名、屆數及照片資料。
 
 ```sh
 python3 scripts/download_platforms.py
 python3 scripts/compare_roster.py --output /tmp/councilor-data.json
 ```
 
-擴充收錄前，先確認 2022 當選結果、2026 正式候選人公報及兩屆政見正文。保留逐人來源、頁碼，以及摘要或缺文狀態。網站從資料計算人數並建立縣市選項。更新收錄範圍時也要更新方法說明。個人連結沿用 `?name=`，若擴充後出現同名議員，需先遷移到唯一識別碼並處理既有連結。
+核對候選檔的人數、來源與頁碼、缺文原因和個人識別碼。確認差異後，以候選檔更新 `public/data.json`，再執行 `npm run check` 與 `npm run build`。
 
-## Git 與 tmux
-
-若這份 checkout 的 Git 歷史存於 `.git-local/`，可用 `git --git-dir=.git-local --work-tree=. status` 查看狀態。在一般終端可執行 `mv -T -- .git-local .git`，將 Git 歷史移回標準位置。這會在 `.git` 不存在或是空目錄時完成搬移。完成後可直接執行 `git status`。
-
-若開發伺服器尚未在既有的 `lazy` session 啟動，可從專案根目錄開啟開發視窗。
-
-```sh
-tmux new-window -t '=lazy:' -n dev -c "$PWD" 'npm run dev'
-```
+擴充收錄前，先確認 2022 當選結果、2026 正式候選人公報及兩屆政見正文。保留既有 `id`，並確認舊的 `?name=` 連結仍可使用。收錄範圍變動時，一併核對本頁人數、縣市統計，以及網站的「怎麼算？資料哪來？」。

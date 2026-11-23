@@ -1,6 +1,6 @@
-"""Build the public dataset from the checked spreadsheet's intermediate records.
+"""Import legacy spreadsheet records and provide shared text comparison helpers.
 
-Usage: python3 scripts/prepare_data.py /path/to/finaldata.json
+Use compare_roster.py to regenerate the current public dataset.
 """
 import argparse
 import json

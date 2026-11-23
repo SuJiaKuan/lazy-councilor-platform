@@ -82,6 +82,7 @@ export function constituency(person: Person) {
 }
 
 export function compareSimilarity(a: ScoredPerson, b: ScoredPerson) {
+  // Cross-multiply the fractions so displayed rounding never creates a tie.
   return b.keep * combinedChars(a) - a.keep * combinedChars(b);
 }
 
