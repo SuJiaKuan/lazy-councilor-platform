@@ -79,7 +79,7 @@ export function App() {
         <header className="hero">
           <div className="hero-title">
             <div>
-              <h1>誰是政見偷懶王</h1>
+              <h1><span>誰是政見</span><span>偷懶王</span></h1>
               <p className="intro">四年前寫過的政見，這次又出現了多少？</p>
             </div>
             <div className="edition">
