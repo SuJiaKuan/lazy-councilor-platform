@@ -13,7 +13,7 @@ npm ci
 npm run dev
 ```
 
-開啟 http://localhost:5173/ 。Vite 提供即時更新，React 元件支援 Fast Refresh。開發伺服器使用固定埠，埠被佔用時會報錯。
+開啟 http://localhost:5174/ 。Vite 提供即時更新，React 元件支援 Fast Refresh。開發伺服器使用固定埠，埠被佔用時會報錯。
 
 ```sh
 npm run check    # TypeScript 型別與資料契約
@@ -47,7 +47,7 @@ python3 scripts/prepare_data.py /path/to/finaldata.json --output /tmp/councilor-
 
 ## Git 與 tmux
 
-在受管工作環境內，根目錄的 `.git` 為唯讀。如果提交記錄存於同一目錄下的 `.git-local/`，可用 `git --git-dir=.git-local --work-tree=. log --oneline` 查看。
+若這份 checkout 的 Git 歷史存於 `.git-local/`，可用 `git --git-dir=.git-local --work-tree=. status` 查看狀態。在一般終端可執行 `mv -T -- .git-local .git`，將 Git 歷史移回標準位置。這會在 `.git` 不存在或是空目錄時完成搬移。完成後可直接執行 `git status`。
 
 若開發伺服器尚未在既有的 `lazy` session 啟動，可從專案根目錄開啟開發視窗。
 
