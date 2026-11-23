@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Comparison } from './components/Comparison';
 import { Method } from './components/Method';
 import { ProfileDialog } from './components/ProfileDialog';
-import { isScored, loadPeople } from './people';
+import { loadPeople } from './people';
 import type { Person } from './people';
 
 type Dataset = { status: 'loading' | 'error' } | { status: 'ready'; people: Person[] };
@@ -44,7 +44,7 @@ export function App() {
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), []);
 
-  async function share(id?: string) {
+  async function share(id: string) {
     const url = pageUrl(id);
     try {
       await navigator.clipboard.writeText(url.href);
@@ -72,41 +72,15 @@ export function App() {
 
   const people = dataset.status === 'ready' ? dataset.people : [];
   const cities = [...new Set(people.map((candidate) => candidate.city))];
-  const scored = people.filter(isScored);
-  const ranked = scored.filter((candidate) => !candidate.note || candidate.transcribed).length;
 
   return (
     <>
-      <header className="top">
-        <div className="shell top-inner">
-          <a className="brand" href="./">政見文字比對</a>
-          <nav aria-label="頁面導覽">
-            <a href="#compare">比較</a><a href="#method">方法與來源</a>
-            <button className="share" type="button" onClick={() => share()}>分享</button>
-          </nav>
-        </div>
-      </header>
       <main className="shell">
-        <section className="hero">
-          <div>
-            <p className="kicker">議員選舉公報・2022–2026</p>
-            <h1>誰是政見偷懶王</h1>
-            <p className="subtitle">那些 2026 尋求連任的議員們</p>
-            <p className="intro">查詢全國 2022 年當選、2026 年再參選的議員。依兩屆公報的字元相似度排序，點開可查看逐字增刪與來源。</p>
-          </div>
-          {dataset.status === 'ready' && (
-            <div className="hero-numbers" aria-label="樣本構成">
-              <div><strong>{dataset.people.length}</strong><span>位議員</span></div>
-              <div><strong>{cities.length}</strong><span>個縣市</span></div>
-              <div><strong>{ranked}</strong><span>位列入初步排名</span></div>
-            </div>
-          )}
-        </section>
-        <section id="compare" className="compare" aria-labelledby="comparison-heading">
-          <div className="section-head">
-            <div><p className="kicker">兩屆比較</p><h2 id="comparison-heading">找議員，看差異</h2></div>
-            <a className="muted method-link" href="#method">這些數字怎麼算？</a>
-          </div>
+        <header className="hero">
+          <h1 id="page-title">誰是政見偷懶王</h1>
+          <p className="intro">尋求連任的議員，2022 和 2026 年的政見有多像？</p>
+        </header>
+        <section id="compare" className="compare" aria-label="政見相似度排名">
           {dataset.status === 'ready' && (
             <Comparison people={people} cities={cities} onSelect={openProfile} />
           )}
@@ -117,7 +91,6 @@ export function App() {
       </main>
       <ProfileDialog person={person} onClose={closeProfile} onShare={share}
         copied={Boolean(person && copiedUrl?.searchParams.get('id') === person.id)} />
-      <div className="toast" role="status" hidden={!copiedUrl || Boolean(person)}>已複製網址</div>
     </>
   );
 }

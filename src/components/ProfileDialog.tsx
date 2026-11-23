@@ -57,23 +57,19 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
                 {person.party && <p className="subtle">{person.party === '無黨籍' ? '2026 無黨籍參選' : `2026 推薦政黨・${person.party}`}</p>}
               </div>
             </div>
-            <button ref={closeButton} type="button" className="share"
-              onClick={() => dialog.current?.close()}>關閉</button>
+            <div className="profile-actions">
+              <button type="button" className="share"
+                onClick={() => onShare(person.id)}>複製分享連結</button>
+              <button ref={closeButton} type="button" className="text-button"
+                onClick={() => dialog.current?.close()}>關閉</button>
+            </div>
           </header>
-          <div className="profile-links">
-            <a href={person.sources[0]} target="_blank" rel="noopener">{person.sourceLabels?.[0] ?? '2022 官方公報'}</a>
-            <a href={person.sources[1]} target="_blank" rel="noopener">{person.sourceLabels?.[1] ?? '2026 官方公報'}</a>
-            {person.portrait && <a href={person.portrait.source} target="_blank" rel="noopener">照片來源（內政部）</a>}
-            <button type="button" className="text-button"
-              onClick={() => onShare(person.id)}>複製個人連結</button>
-          </div>
           {isScored(person) ? (
             <>
               <div className="profile-score">
                 <strong>{formattedSimilarity(person)}</strong>
-                <span>兩屆政見字元相似度</span>
+                <span>兩屆政見相似度</span>
               </div>
-              {person.note && <p className="subtle quality-note">{person.note}</p>}
               <section className="full-diff">
                 <h3>{person.note ? '比對稿逐字差異' : '全文逐字差異'}</h3>
                 <div className="diff-key"><del>刪除文字</del><ins>新增文字</ins><span>保留文字</span></div>
@@ -88,6 +84,15 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
               <strong>暫不計分</strong><p>{person.unscoredReason}</p>
             </section>
           )}
+          <details className="profile-sources">
+            <summary>資料來源</summary>
+            {isScored(person) && person.note && <p className="subtle quality-note">{person.note}</p>}
+            <div className="profile-links">
+              <a href={person.sources[0]} target="_blank" rel="noopener">{person.sourceLabels?.[0] ?? '2022 官方公報'}</a>
+              <a href={person.sources[1]} target="_blank" rel="noopener">{person.sourceLabels?.[1] ?? '2026 官方公報'}</a>
+              {person.portrait && <a href={person.portrait.source} target="_blank" rel="noopener">照片來源（內政部）</a>}
+            </div>
+          </details>
         </div>
       )}
       <div className="toast" role="status" hidden={!copied}>已複製網址</div>

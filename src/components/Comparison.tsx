@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { compareSimilarity, constituency, formattedSimilarity, isScored, similarity, similarityRanks } from '../people';
+import { useRef, useState } from 'react';
+import { compareSimilarity, constituency, formattedSimilarity, isScored, similarityRanks } from '../people';
 import type { Person } from '../people';
 import { Portrait } from './Portrait';
 
@@ -9,7 +9,7 @@ interface Props {
   onSelect: (person: Person, opener: HTMLButtonElement) => void;
 }
 
-const ticks = ['0%', '25%', '50%', '75%', '100%'];
+const pageSize = 12;
 const searchKey = (name: string) => name.trim().replaceAll('台', '臺');
 
 export function Comparison({ people, cities, onSelect }: Props) {
@@ -17,6 +17,8 @@ export function Comparison({ people, cities, onSelect }: Props) {
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
   const [confirmedOnly, setConfirmedOnly] = useState(false);
+  const [page, setPage] = useState(1);
+  const results = useRef<HTMLHeadingElement>(null);
   const cityPeople = city ? people.filter((person) => person.city === city) : people;
   const districts = [...new Set(cityPeople.map((person) => String(person.district)))].sort(
     (a, b) => a.localeCompare(b, 'zh-TW', { numeric: true }),
@@ -27,30 +29,40 @@ export function Comparison({ people, cities, onSelect }: Props) {
   );
   const allScored = people.filter(isScored);
   const confirmed = allScored.filter((person) => !person.note);
-  const transcribed = allScored.filter((person) => person.note && person.transcribed);
-  const rankable = confirmedOnly ? confirmed : [...confirmed, ...transcribed];
+  const rankable = confirmedOnly ? confirmed : allScored.filter((person) => !person.note || person.transcribed);
   const ranks = similarityRanks(rankable);
   const scored = visible.filter(isScored).filter((person) => !confirmedOnly || !person.note).sort((a, b) =>
     Number(ranks.has(b.id)) - Number(ranks.has(a.id)) ||
     compareSimilarity(a, b) || a.name.localeCompare(b.name, 'zh-TW'),
   );
   const pending = confirmedOnly ? [] : visible.filter((person) => !isScored(person));
-  const excerpts = allScored.length - confirmed.length - transcribed.length;
-  const shown = scored.length + pending.length;
+  const matches = [...scored, ...pending];
+  const totalPages = Math.ceil(matches.length / pageSize);
+  const pagePeople = matches.slice((page - 1) * pageSize, page * pageSize);
+
+  function goToPage(next: number) {
+    setPage(next);
+    results.current?.focus({ preventScroll: true });
+    results.current?.scrollIntoView({ block: 'start' });
+  }
 
   return (
     <>
       <div className="controls">
         <label>
-          姓名搜尋
-          <input type="search" placeholder="輸入議員姓名" autoComplete="off" value={query}
-            onChange={(event) => setQuery(event.target.value)} />
+          姓名
+          <input type="search" placeholder="搜尋議員" autoComplete="off" value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(1);
+            }} />
         </label>
         <label>
           縣市
           <select value={city} onChange={(event) => {
             setCity(event.target.value);
             setDistrict('');
+            setPage(1);
           }}>
             <option value="">全部縣市</option>
             {cities.map((name) => <option key={name}>{name}</option>)}
@@ -58,75 +70,77 @@ export function Comparison({ people, cities, onSelect }: Props) {
         </label>
         <label>
           選區
-          <select value={district} onChange={(event) => setDistrict(event.target.value)}>
+          <select value={district} onChange={(event) => {
+            setDistrict(event.target.value);
+            setPage(1);
+          }}>
             <option value="">全部選區</option>
             {districts.map((value) => <option key={value} value={value}>第 {value} 選區</option>)}
           </select>
         </label>
       </div>
       {confirmed.length > 0 && (
-        <label className="ranking-toggle">
-          <input type="checkbox" checked={confirmedOnly}
-            onChange={(event) => setConfirmedOnly(event.target.checked)} />
-          只看已核對排名
-        </label>
+        <details className="ranking-options">
+          <summary>排名選項</summary>
+          <label className="ranking-toggle">
+            <input type="checkbox" checked={confirmedOnly}
+              onChange={(event) => {
+                setConfirmedOnly(event.target.checked);
+                setPage(1);
+              }} />
+            只看已核對資料
+          </label>
+        </details>
       )}
-      <div className="legend">
-        <p>兩屆政見字元相似度</p>
-        <span id="count" role="status">顯示 {shown}／{people.length} 人</span>
+      <div className="ranking-heading">
+        <h2 ref={results} tabIndex={-1}>{confirmedOnly ? '已核對排名' : '全國排名'}</h2>
+        <span>政見相似度</span>
       </div>
-      <p className="subtle">
-        {confirmedOnly
-          ? `已核對 ${confirmed.length} 人，名次依全站已核對資料計算。`
-          : `全國排名 ${rankable.length} 人，待補原文 ${people.length - allScored.length} 人。`}
-        {excerpts > 0 && !confirmedOnly && `另有 ${excerpts} 人採用摘要或摘錄，可查看分數，暫不列名次。`}
+      <p className="sr-only" role="status">
+        {matches.length > 0 ? `第 ${page} 頁，共 ${totalPages} 頁，${matches.length} 筆結果。` : '沒有符合的人選。'}
       </p>
-      <div className="chart" aria-label="議員比較結果">
-        {shown === 0 && <p>沒有符合的人選。可調整篩選條件。</p>}
-        {scored.length > 0 && (
-          <div className="axis" aria-hidden="true">
-            <span>議員</span>
-            <div className="ticks">{ticks.map((tick) => <span key={tick}>{tick}</span>)}</div>
-          </div>
-        )}
-        {scored.map((person) => (
-          <button key={person.id} className="row" type="button"
-            onClick={(event) => onSelect(person, event.currentTarget)}>
-            <span className="person person-with-portrait">
-              <Portrait person={person} />
-              <span>
-                <strong>{person.name}</strong>
-                {ranks.has(person.id) && <span className="rank">第 {ranks.get(person.id)} 名</span>}
-                {person.note && !person.transcribed && <span className="approx">摘要或摘錄</span>}
-                <small>{constituency(person)}{person.party && `・${person.party}`}</small>
-              </span>
-            </span>
-            <span className="track" aria-hidden="true">
-              <span className="fill" style={{ width: `${similarity(person) * 100}%` }} />
-            </span>
-            <span className="pct">{formattedSimilarity(person)}</span>
-          </button>
-        ))}
-        {pending.length > 0 && (
-          <details className="pending" open={Boolean(query.trim() || city || district)}>
-            <summary>待補原文（{pending.length} 人）</summary>
-            {pending.map((person) => (
-              <button key={person.id} className="row pending-row" type="button"
-                onClick={(event) => onSelect(person, event.currentTarget)}>
-                <span className="person person-with-portrait">
-                  <Portrait person={person} />
-                  <span>
-                    <strong>{person.name}</strong>
-                    <small>{constituency(person)}{person.party && `・${person.party}`}</small>
+      {matches.length === 0 && <p className="empty-result">沒有符合的人選。可調整搜尋條件。</p>}
+      {pagePeople.length > 0 && (
+        <ul className="ranking-grid">
+          {pagePeople.map((person) => {
+            const rank = ranks.get(person.id);
+            return (
+              <li key={person.id}>
+                <button className="candidate-card" type="button"
+                  onClick={(event) => onSelect(person, event.currentTarget)}>
+                  <span className="card-photo">
+                    <Portrait person={person} />
+                    <span className="rank">{rank === undefined ? '未列名次' : `第 ${rank} 名`}</span>
                   </span>
-                </span>
-                <span className="pending-reason">{person.unscoredReason}</span>
-                <span className="pending-label">暫不計分</span>
-              </button>
+                  <span className="card-body">
+                    <span className="candidate-name">{person.name}</span>
+                    <span className="candidate-meta">{constituency(person)}{person.party && `・${person.party}`}</span>
+                    {isScored(person) ? (
+                      <span className="candidate-score">
+                        <span className="sr-only">相似度 </span>
+                        {formattedSimilarity(person)}
+                      </span>
+                    ) : (
+                      <span className="card-note">待補原文</span>
+                    )}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {totalPages > 1 && (
+        <nav className="pagination" aria-label="排名分頁">
+          <button type="button" disabled={page === 1} onClick={() => goToPage(page - 1)}>上一頁</button>
+          <select aria-label="前往頁碼" value={page} onChange={(event) => goToPage(Number(event.target.value))}>
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map((number) => (
+              <option key={number} value={number}>第 {number}／{totalPages} 頁</option>
             ))}
-          </details>
-        )}
-      </div>
+          </select>
+          <button type="button" disabled={page === totalPages} onClick={() => goToPage(page + 1)}>下一頁</button>
+        </nav>
+      )}
     </>
   );
 }

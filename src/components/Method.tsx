@@ -2,9 +2,8 @@ import { dataUrl } from '../people';
 
 export function Method() {
   return (
-    <section id="method" className="method" aria-labelledby="method-heading">
-      <p className="kicker">研究方法</p>
-      <h2 id="method-heading">字元怎麼比？</h2>
+    <details id="method" className="method">
+      <summary>方法與來源</summary>
       <dl>
         <dt>目前收錄範圍</dt>
         <dd>
@@ -49,6 +48,6 @@ export function Method() {
         <a href="https://www.moi.gov.tw/cl.aspx?n=12" target="_blank" rel="noopener">內政部地方公職人員資訊專區</a>，
         採用議員名錄肖像，缺少照片時顯示姓名首字。
       </p>
-    </section>
+    </details>
   );
 }
