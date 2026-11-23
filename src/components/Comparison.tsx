@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { compareRetention, constituency, formattedCounts, formattedRetention, isScored, retention, retentionRanks } from '../people';
+import { compareRetention, constituency, formattedCounts, formattedRetention, fullRetentionLabel, isScored, retention, retentionRanks } from '../people';
 import type { Person } from '../people';
 
 interface Props {
@@ -55,7 +55,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
         </label>
       )}
       <div className="legend">
-        <p>保留字元 ÷ 2026 政見總字元</p>
+        <p>2026 政見字元保留率（保留字元 ÷ 2026 政見總字元）</p>
         <span id="count" role="status">顯示 {shown}／{people.length} 人</span>
       </div>
       <p className="subtle">
@@ -84,7 +84,11 @@ export function Comparison({ people, cities, onSelect }: Props) {
             <span className="track" aria-hidden="true">
               <span className="fill" style={{ width: `${retention(person) * 100}%` }} />
             </span>
-            <span className="pct">{formattedRetention(person)}<small>{formattedCounts(person)}</small></span>
+            <span className="pct">
+              {formattedRetention(person)}
+              {person.added === 0 && <small>{fullRetentionLabel(person)}</small>}
+              <small>{formattedCounts(person)}</small>
+            </span>
           </button>
         ))}
         {pending.length > 0 && (

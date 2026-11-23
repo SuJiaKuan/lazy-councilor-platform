@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef } from 'react';
-import { constituency, formattedCounts, formattedRetention, isScored } from '../people';
+import { constituency, formattedCounts, formattedRetention, fullRetentionLabel, isScored } from '../people';
 import type { Person, ScoredPerson } from '../people';
 
 interface Props {
@@ -65,7 +65,8 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
             <>
               <div className="profile-score">
                 <strong>{formattedRetention(person)}</strong>
-                <span>字元保留率 · {formattedCounts(person)}</span>
+                {person.added === 0 && <span>{fullRetentionLabel(person)}</span>}
+                <span>2026 政見字元保留率 · {formattedCounts(person)}</span>
               </div>
               {person.note && <p className="subtle quality-note">{person.note}</p>}
               <section className="full-diff">

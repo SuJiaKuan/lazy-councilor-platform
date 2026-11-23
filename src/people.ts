@@ -53,7 +53,12 @@ export function retention(person: ScoredPerson) {
 }
 
 export function formattedRetention(person: ScoredPerson) {
-  return percentage.format(retention(person));
+  const formatted = percentage.format(retention(person));
+  return person.added > 0 && formatted === percentage.format(1) ? '<100%' : formatted;
+}
+
+export function fullRetentionLabel(person: ScoredPerson) {
+  return person.removed === 0 ? '比對文字相同' : `刪除 ${person.removed.toLocaleString('zh-TW')} 字`;
 }
 
 export function formattedCounts(person: ScoredPerson) {
