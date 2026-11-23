@@ -77,7 +77,7 @@ export function App() {
     <>
       <main className="shell">
         <header className="hero">
-          <p className="edition">議員選舉公報比對 <span>2022 → 2026</span></p>
+          <p className="edition">議員選舉公報比對 <span>2022／2026</span></p>
           <div className="hero-title">
             <h1>誰是政見<span>偷懶王</span></h1>
             <p className="intro">四年前寫過的政見，<br />這次又出現了多少？</p>

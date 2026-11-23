@@ -112,21 +112,28 @@ export function Comparison({ people, cities, onSelect }: Props) {
               <li key={person.id}>
                 <button className="candidate-card" data-leading={rank === 1 || undefined} type="button"
                   onClick={(event) => onSelect(person, event.currentTarget)}>
-                  <span className="card-photo">
-                    <Portrait person={person} />
+                  <span className="candidate-identity">
+                    <span className="gazette-label">名次／姓名</span>
                     <span className="rank">{rankLabel}</span>
+                    <span className="candidate-name">{person.name}</span>
+                    <span className="card-photo"><Portrait person={person} /></span>
                   </span>
                   <span className="card-body">
-                    <span className="candidate-name">{person.name}</span>
-                    <span className="candidate-meta">{constituency(person)}{person.party && `・${person.party}`}</span>
+                    <span className="gazette-label">政見相似度</span>
                     {isScored(person) ? (
                       <span className="candidate-score">
-                        <span className="score-label">政見相似度</span>
+                        <span className="sr-only">政見相似度 </span>
                         <strong>{formattedSimilarity(person)}</strong>
+                        {person.added === 0 && person.removed === 0 && <small>兩屆比對文字相同</small>}
                       </span>
                     ) : (
                       <span className="card-note">待補原文</span>
                     )}
+                    <span className="candidate-field"><span>選區</span>{constituency(person)}</span>
+                    {person.party && (
+                      <span className="candidate-field"><span>參選政黨</span>{person.party}</span>
+                    )}
+                    <span className="card-link">看兩屆差異 <span aria-hidden="true">→</span></span>
                   </span>
                 </button>
               </li>
