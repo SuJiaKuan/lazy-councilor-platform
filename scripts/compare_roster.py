@@ -9,6 +9,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from download_platforms import OFFICES
 from prepare_data import ROOT, compare_text, display_and_key
 
 ROSTER = ROOT / 'data' / 'reelection-2026.csv'
@@ -20,6 +21,23 @@ EMPTY_POLICY = re.compile(
     r'請參閱公報|圖片|圖片式政見|政見為圖片|姓名出生年月日)[。]?'
 )
 POLICY_HEADINGS = {'政見', '公報政見', '競選政見'}
+TRANSCRIPTION_ISSUES = {
+    ('new-taipei-8-8', 2026): '公報雙欄轉錄順序交錯',
+    ('new-taipei-12-5', 2026): '公報雙欄轉錄順序交錯',
+    ('taipei-3-5', 2026): '公報轉錄缺少多數政見正文',
+}
+# Keep the original transcription wording and order within the policy section.
+POLICY_BOUNDS = {
+    ('taipei-5-13', 2026): ('老城更新', '拿成果證明，靠行動承諾'),
+    ('new-taipei-6-1', 2022): (None, ' 烽堯是法學'),
+    ('new-taipei-6-1', 2026): ('交通減壓', '\n邱烽堯'),
+    ('new-taipei-6-5', 2022): ('1、普設', None),
+    ('new-taipei-6-5', 2026): ('1、擴大', None),
+    ('new-taipei-6-7', 2022): ('1.南勢角', None),
+    ('new-taipei-6-7', 2026): (None, '建設中和 輝宂最合'),
+    ('new-taipei-12-3', 2022): ('發展青年創意經濟', None),
+    ('new-taipei-12-3', 2026): ('共築族人安居生活', None),
+}
 
 
 def name_key(text):
@@ -35,7 +53,8 @@ def column(row, *headers):
 def platform_index(directory):
     by_year = {year: defaultdict(list) for year in YEARS}
     for year, lookup in by_year.items():
-        for file in sorted(directory.glob(f'公報政見_{year}_*.csv')):
+        for office in OFFICES:
+            file = directory / f'公報政見_{year}_{office}.csv'
             with file.open(encoding='utf-8-sig', newline='') as stream:
                 reader = csv.DictReader(stream)
                 fields = set(reader.fieldnames or ())
@@ -87,10 +106,16 @@ def policy_lines(row):
     ]
 
 
-def compare_entry(row, existing, platforms):
-    if existing and 'unscoredReason' not in existing and ('terms' in existing or not existing['note']):
-        return {**existing, 'id': row['id']}
+def policy_body(lines, start, end):
+    text = '\n'.join(lines)
+    if start:
+        text = text[text.index(start):]
+    if end:
+        text = text[:text.index(end)]
+    return text.splitlines()
 
+
+def compare_entry(row, existing, platforms):
     city = row['縣市']
     source_rows = [
         find_platform(platforms[year], city, row[f'{year}{"當選" if year == 2022 else "候選"}姓名'], row[f'{year}選區'])
@@ -113,21 +138,33 @@ def compare_entry(row, existing, platforms):
         base['terms'] = existing['terms']
         base['name'] = existing['name']
 
-    normalized = [display_and_key(lines) if (lines := policy_lines(source)) else ('', [])
-                  for source in source_rows]
-    missing = [str(year) for year, source, (key, _) in zip(YEARS, sources, normalized)
-               if not source or not key]
+    normalized = []
+    missing = []
+    notes = []
+    for year, row_source, source in zip(YEARS, source_rows, sources):
+        lines = policy_lines(row_source)
+        record_year = (row['id'], year)
+        issue = TRANSCRIPTION_ISSUES.get(record_year)
+        if source and lines and not issue and record_year in POLICY_BOUNDS:
+            try:
+                lines = policy_body(lines, *POLICY_BOUNDS[record_year])
+            except ValueError:
+                issue = '轉錄更新後須重新確認政見正文範圍'
+            else:
+                notes.append(f'{year} 年依公報版面擷取政見正文。')
+        key, display = display_and_key(lines) if lines else ('', [])
+        if issue or not source or not key:
+            missing.append(f'{year} 年{issue or "待補可核對的政見原文"}。')
+        normalized.append((key, display))
     if missing:
-        if existing and ('terms' in existing or 'unscoredReason' not in existing):
-            return {**existing, 'id': row['id']}
-        return {**base, 'unscoredReason': f'待補 {"、".join(missing)} 年可核對的政見原文。'}
+        return {**base, 'unscoredReason': ''.join(missing)}
 
     (left, left_display), (right, right_display) = normalized
     return {
         **base,
         **compare_text(left, right, left_display, right_display),
         'transcribed': True,
-        'note': '依 Taiwan Votes 公報轉錄試算，待逐份核對原始公報。',
+        'note': '採用 Taiwan Votes 的公報轉錄。' + ''.join(notes),
     }
 
 
@@ -151,11 +188,10 @@ def main():
         old = by_id.get(row['id']) or legacy.get((row['縣市'], name_key(row['2026候選姓名'])))
         dataset.append(compare_entry(row, old, platforms))
 
-    counts = Counter('待補' if 'unscoredReason' in person else '試算' if person['note'] else '正式'
-                     for person in dataset)
+    counts = Counter('待補' if 'unscoredReason' in person else '已比對' for person in dataset)
     args.output.write_text(json.dumps(dataset, ensure_ascii=False, separators=(',', ':')) + '\n',
                            encoding='utf-8')
-    print(f'{len(dataset)} 人：正式 {counts["正式"]}、試算 {counts["試算"]}、待補 {counts["待補"]}')
+    print(f'{len(dataset)} 人：已比對 {counts["已比對"]}、待補 {counts["待補"]}')
 
 
 if __name__ == '__main__':

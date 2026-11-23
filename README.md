@@ -2,7 +2,7 @@
 
 那些 2026 尋求連任的議員們。用選舉公報比較 2022 與 2026 的政見文字，顯示字元保留率、逐字增刪及個別公報來源。
 
-目前沿用 ZIP 內的雙北 49 人樣本，其中 6 人標為試算、2 人待補原文。完整的 2022 當選且 2026 再參選名單是下一階段的資料工作。字元保留率描述文字重用程度，履約與問政表現需另查執行紀錄。
+涵蓋全國 22 縣市在 2022 年當選且 2026 年再參選的 695 人。兩屆都以 Taiwan Votes 的公報轉錄為底稿。字元保留率描述文字重用程度，履約與問政表現需另查執行紀錄。
 
 ## 開發與建置
 
@@ -37,10 +37,11 @@ npm run preview  # 在 http://localhost:4173/ 預覽建置結果
 
 ## 更新資料
 
-有上游 `finaldata.json` 時，可以先產出候選檔以檢查差異，再更新 `public/data.json`。原始 ZIP 未附上游檔，已附的公開資料可直接使用。
+下載兩屆共六份 Taiwan Votes 公報政見 CSV，再依連任名單產出候選檔。確認差異後更新 `public/data.json`。
 
 ```sh
-python3 scripts/prepare_data.py /path/to/finaldata.json --output /tmp/councilor-data.json
+python3 scripts/download_platforms.py
+python3 scripts/compare_roster.py --output /tmp/councilor-data.json
 ```
 
 擴充收錄前，先確認 2022 當選結果、2026 正式候選人公報及兩屆政見正文。保留逐人來源、頁碼，以及摘要或缺文狀態。網站從資料計算人數並建立縣市選項。更新收錄範圍時也要更新方法說明。個人連結沿用 `?name=`，若擴充後出現同名議員，需先遷移到唯一識別碼並處理既有連結。

@@ -20,14 +20,15 @@ export function Comparison({ people, cities, onSelect }: Props) {
   );
   const allScored = people.filter(isScored);
   const confirmed = allScored.filter((person) => !person.note);
-  const rankable = confirmedOnly ? confirmed : allScored.filter((person) => !person.note || person.transcribed);
+  const transcribed = allScored.filter((person) => person.note && person.transcribed);
+  const rankable = confirmedOnly ? confirmed : [...confirmed, ...transcribed];
   const ranks = retentionRanks(rankable);
   const scored = visible.filter(isScored).filter((person) => !confirmedOnly || !person.note).sort((a, b) =>
     Number(ranks.has(b.id)) - Number(ranks.has(a.id)) ||
     compareRetention(a, b) || a.name.localeCompare(b.name, 'zh-TW'),
   );
   const pending = confirmedOnly ? [] : visible.filter((person) => !isScored(person));
-  const approximate = allScored.length - confirmed.length;
+  const excerpts = allScored.length - confirmed.length - transcribed.length;
   const shown = scored.length + pending.length;
 
   return (
@@ -46,18 +47,22 @@ export function Comparison({ people, cities, onSelect }: Props) {
           </select>
         </label>
       </div>
-      <label className="ranking-toggle">
-        <input type="checkbox" checked={confirmedOnly}
-          onChange={(event) => setConfirmedOnly(event.target.checked)} />
-        只看已核對排名
-      </label>
+      {confirmed.length > 0 && (
+        <label className="ranking-toggle">
+          <input type="checkbox" checked={confirmedOnly}
+            onChange={(event) => setConfirmedOnly(event.target.checked)} />
+          只看已核對排名
+        </label>
+      )}
       <div className="legend">
         <p>保留字元 ÷ 2026 政見總字元</p>
         <span id="count" role="status">顯示 {shown}／{people.length} 人</span>
       </div>
       <p className="subtle">
-        已核對 {confirmed.length} 人，試算 {approximate} 人，待補原文 {people.length - allScored.length} 人。
-        {confirmedOnly ? '名次依全站已核對資料計算。' : '全國名次含公報轉錄試算。摘要或摘錄的試算不列名次。'}
+        {confirmedOnly
+          ? `已核對 ${confirmed.length} 人，名次依全站已核對資料計算。`
+          : `全國排名 ${rankable.length} 人，待補原文 ${people.length - allScored.length} 人。`}
+        {excerpts > 0 && !confirmedOnly && `另有 ${excerpts} 人採用摘要或摘錄，可查看分數，暫不列名次。`}
       </p>
       <div className="chart" aria-label="議員比較結果">
         {shown === 0 && <p>沒有符合的人選。可調整篩選條件。</p>}
@@ -73,7 +78,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
             <span className="person">
               <strong>{person.name}</strong>
               {ranks.has(person.id) && <span className="rank">第 {ranks.get(person.id)} 名</span>}
-              {person.note && <span className="approx">試算</span>}
+              {person.note && !person.transcribed && <span className="approx">摘要或摘錄</span>}
               <small>{constituency(person)}</small>
             </span>
             <span className="track" aria-hidden="true">

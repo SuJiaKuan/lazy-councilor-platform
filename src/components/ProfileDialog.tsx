@@ -67,9 +67,9 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
                 <strong>{formattedRetention(person)}</strong>
                 <span>字元保留率 · {formattedCounts(person)}</span>
               </div>
-              {person.note && <p className="subtle quality-note">試算資料。　{person.note}</p>}
+              {person.note && <p className="subtle quality-note">{person.note}</p>}
               <section className="full-diff">
-                <h3>全文逐字差異</h3>
+                <h3>{person.note ? '比對稿逐字差異' : '全文逐字差異'}</h3>
                 <div className="diff-key"><del>刪除文字</del><ins>新增文字</ins><span>保留文字</span></div>
                 <div className="diff-columns">
                   <DiffColumn year={2022} label={person.note ? '政見比對稿' : '政見全文'} diff={person.oldDiff} />
