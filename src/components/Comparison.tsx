@@ -30,6 +30,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
   const [district, setDistrict] = useState('');
   const [party, setParty] = useState('');
   const [confirmedOnly, setConfirmedOnly] = useState(false);
+  const [lowestFirst, setLowestFirst] = useState(false);
   const [page, setPage] = useState(1);
   const [shown, setShown] = useState(mobileBatch);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -57,7 +58,8 @@ export function Comparison({ people, cities, onSelect }: Props) {
   for (const rank of ranks.values()) rankCounts.set(rank, (rankCounts.get(rank) ?? 0) + 1);
   const scored = visible.filter(isScored).filter((person) => !confirmedOnly || !person.note).sort((a, b) =>
     Number(ranks.has(b.id)) - Number(ranks.has(a.id)) ||
-    compareSimilarity(a, b) || a.name.localeCompare(b.name, 'zh-TW'),
+    (lowestFirst ? compareSimilarity(b, a) : compareSimilarity(a, b)) ||
+    a.name.localeCompare(b.name, 'zh-TW'),
   );
   const pending = confirmedOnly ? [] : visible.filter((person) => !isScored(person));
   const matches = [...scored, ...pending];
@@ -85,6 +87,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
     changeCity('');
     setParty('');
     setConfirmedOnly(false);
+    setLowestFirst(false);
     resetPosition();
     (mobile ? filterToggle.current : search.current)?.focus();
   }
@@ -171,7 +174,8 @@ export function Comparison({ people, cities, onSelect }: Props) {
           </ul>
         )}
         <button className="controls-reset" type="button" onClick={resetSearch}
-          disabled={!query && !city && !district && !party && !confirmedOnly && (mobile ? shown === mobileBatch : page === 1)}>
+          disabled={!query && !city && !district && !party && !confirmedOnly && !lowestFirst &&
+            (mobile ? shown === mobileBatch : page === 1)}>
           清除所有條件
         </button>
       </div>
@@ -189,10 +193,25 @@ export function Comparison({ people, cities, onSelect }: Props) {
         </details>
       )}
       <div className="ranking-heading">
-        <h2 ref={results} tabIndex={-1}>{confirmedOnly ? '已核對排名' : '誰寫得最像上次？'}</h2>
-        <p>百分比越高，兩屆公報的寫法越接近。</p>
+        <div>
+          <h2 ref={results} tabIndex={-1}>
+            {confirmedOnly ? '已核對排名' : lowestFirst ? '誰寫得最不像上次？' : '誰寫得最像上次？'}
+          </h2>
+          <p>百分比越高，兩屆公報的寫法越接近。</p>
+        </div>
+        <label className="ranking-sort">
+          相似度
+          <select value={lowestFirst ? 'ascending' : 'descending'} onChange={(event) => {
+            setLowestFirst(event.target.value === 'ascending');
+            resetPosition();
+          }}>
+            <option value="descending">由高到低</option>
+            <option value="ascending">由低到高</option>
+          </select>
+        </label>
       </div>
       <p className="sr-only" role="status">
+        {matches.length > 0 && (lowestFirst ? '相似度由低到高。' : '相似度由高到低。')}
         {matches.length === 0 ? '沒有符合的人選。' : mobile
           ? `已顯示 ${pagePeople.length}／${matches.length} 位。`
           : `第 ${page} 頁，共 ${totalPages} 頁，${matches.length} 筆結果。`}
@@ -228,7 +247,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
                     </span>
                     {isScored(person) ? (
                       <span className="candidate-score">
-                        <span className="score-label">文字保留率</span>
+                        <span className="score-label">相似度</span>
                         <span className="graded-score" data-grade={grade?.id}>
                           <strong>{formattedSimilarity(person)}</strong>
                           <span className="score-grade">{grade?.label}</span>

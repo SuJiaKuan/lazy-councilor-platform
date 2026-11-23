@@ -135,7 +135,7 @@ export function ProfileDialog({ person, copied, onClose, onShare }: Props) {
             <>
               <div className="profile-score" data-grade={grade?.id}>
                 <div>
-                  <span>文字保留率</span>
+                  <span>相似度</span>
                   <strong>{formattedSimilarity(person)}</strong>
                   {grade && <span className="score-grade">{grade.label} · {grade.range}</span>}
                 </div>

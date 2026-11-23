@@ -120,7 +120,7 @@ export function App() {
             </div>
           </div>
         </header>
-        <section id="compare" className="compare" aria-label="政見文字保留率排名">
+        <section id="compare" className="compare" aria-label="政見相似度排名">
           {dataset.status === 'ready' && (
             <Comparison people={people} cities={cities} onSelect={openProfile} />
           )}
