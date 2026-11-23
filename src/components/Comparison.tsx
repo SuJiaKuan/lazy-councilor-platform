@@ -28,6 +28,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
   const [party, setParty] = useState('');
   const [confirmedOnly, setConfirmedOnly] = useState(false);
   const [page, setPage] = useState(1);
+  const search = useRef<HTMLInputElement>(null);
   const results = useRef<HTMLHeadingElement>(null);
   const cityPeople = city ? people.filter((person) => person.city === city) : people;
   const districts = [...new Set(cityPeople.map((person) => String(person.district)))].sort(
@@ -55,6 +56,16 @@ export function Comparison({ people, cities, onSelect }: Props) {
   const totalPages = Math.ceil(matches.length / pageSize);
   const pagePeople = matches.slice((page - 1) * pageSize, page * pageSize);
 
+  function resetSearch() {
+    setQuery('');
+    setCity('');
+    setDistrict('');
+    setParty('');
+    setConfirmedOnly(false);
+    setPage(1);
+    search.current?.focus();
+  }
+
   function goToPage(next: number) {
     setPage(next);
     results.current?.focus({ preventScroll: true });
@@ -66,7 +77,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
       <div className="controls">
         <label>
           姓名
-          <input type="search" placeholder="搜尋議員" autoComplete="off" value={query}
+          <input ref={search} type="search" placeholder="搜尋議員" autoComplete="off" value={query}
             onChange={(event) => {
               setQuery(event.target.value);
               setPage(1);
@@ -103,6 +114,10 @@ export function Comparison({ people, cities, onSelect }: Props) {
             {parties.map((name) => <option key={name}>{name}</option>)}
           </select>
         </label>
+        <button className="controls-reset" type="button" onClick={resetSearch}
+          disabled={!query && !city && !district && !party && !confirmedOnly && page === 1}>
+          清除所有條件
+        </button>
       </div>
       {confirmed.length > 0 && (
         <details className="ranking-options">
