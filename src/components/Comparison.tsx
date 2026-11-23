@@ -31,9 +31,9 @@ export function Comparison({ people, cities, onSelect }: Props) {
   const search = useRef<HTMLInputElement>(null);
   const results = useRef<HTMLHeadingElement>(null);
   const cityPeople = city ? people.filter((person) => person.city === city) : people;
-  const districts = [...new Set(cityPeople.map((person) => String(person.district)))].sort(
+  const districts = city ? [...new Set(cityPeople.map((person) => String(person.district)))].sort(
     (a, b) => a.localeCompare(b, 'zh-TW', { numeric: true }),
-  );
+  ) : [];
   const parties = [...new Set(people.flatMap((person) => person.party ? [person.party] : []))]
     .sort((a, b) => a.localeCompare(b, 'zh-TW'));
   const visible = cityPeople.filter((person) =>
@@ -96,7 +96,7 @@ export function Comparison({ people, cities, onSelect }: Props) {
         </label>
         <label>
           選區
-          <select value={district} onChange={(event) => {
+          <select value={district} disabled={!city} onChange={(event) => {
             setDistrict(event.target.value);
             setPage(1);
           }}>
